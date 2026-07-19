@@ -1,0 +1,2 @@
+<?php
+// Translation files directory.

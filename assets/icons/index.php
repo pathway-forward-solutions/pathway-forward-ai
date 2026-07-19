@@ -1,0 +1,2 @@
+<?php
+// Icon assets directory.
