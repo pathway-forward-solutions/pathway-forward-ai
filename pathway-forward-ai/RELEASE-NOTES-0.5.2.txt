@@ -1,0 +1,11 @@
+Pathway Forward AI 0.5.2
+
+NEW
+- Participant Follow-Up Queue
+- Overdue, due-today, and 30-day follow-up totals
+- Direct links to participant records
+- Case manager and participant-status visibility
+- Mission Control shortcut to the queue
+
+INSTALL
+Upload this ZIP on staging and choose Replace current with uploaded.

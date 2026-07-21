@@ -1,0 +1,14 @@
+Pathway Forward AI 0.5.0 — Mission Control 2.0
+
+NEW
+- Unified Version 1.0 Mission Control dashboard.
+- Automatic connection to the existing Pathway Forward Platform participant records.
+- Module cards for Participants, Case Management, Academy, Employers, AI Center, and Reports.
+- Live participant totals and recent-participant activity.
+- Module readiness and AI-provider status panel.
+- Responsive dashboard styling for desktop, tablet, and mobile.
+
+IMPORTANT
+- Install on the WordPress.com staging site first.
+- This update does not delete participant data.
+- This update replaces Pathway Forward AI 0.4.0 with 0.5.0.

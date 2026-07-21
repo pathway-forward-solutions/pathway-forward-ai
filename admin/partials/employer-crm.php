@@ -40,7 +40,7 @@ $statuses = array(
             <form method="post" class="pfai-entity-form">
                 <?php wp_nonce_field('pfai_save_employer', 'pfai_employer_crm_nonce'); ?>
                 <input type="hidden" name="pfai_employer_action" value="save" />
-                <input type="hidden" name="pfai_employer_id" value="<?php echo esc_attr((int) $edit_employer->id); ?>" />
+                <input type="hidden" name="pfai_employer_id" value="<?php echo esc_attr($edit_employer ? (int) $edit_employer->id : 0); ?>" />
 
                 <div class="pfai-form-row">
                     <label for="pfai_employer_name"><?php echo esc_html__('Employer name', 'pathway-forward-ai'); ?></label>

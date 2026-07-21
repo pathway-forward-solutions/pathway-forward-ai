@@ -1,0 +1,16 @@
+Pathway Forward AI 0.6.0 — Participant Workspace
+
+NEW
+- Participant Workspace available under PFS Mission Control.
+- Participant directory with direct workspace access.
+- Connected participant snapshot using existing Platform or AI participant records.
+- Profile completion score and progress bar.
+- AI-ready summary generated from the participant's current record.
+- Next Best Action and participant needs list.
+- Contact, career goal, employment, follow-up, documents, and case-note panels.
+- Direct edit-record actions.
+
+NOTES
+- This release does not send participant data to an external AI provider.
+- The summary and recommendations are currently rules-based and prepare the interface for the live AI service integration.
+- Install and test on staging before production.
