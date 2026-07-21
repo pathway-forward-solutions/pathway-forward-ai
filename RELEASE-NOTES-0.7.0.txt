@@ -1,0 +1,15 @@
+Pathway Forward AI 0.7.0 — AI Participant Intelligence
+
+New
+- OpenAI API connection settings
+- Configurable AI model (default gpt-5-mini)
+- Generate/refresh AI participant summaries from the Participant Workspace
+- AI output stored on the participant record with generation timestamp
+- Uses only selected participant profile fields, recent notes, task count, and document names
+- Rules-based summary remains available when AI is not configured
+
+Security and privacy
+- API requests use the server-side WordPress HTTP API
+- API key is never exposed in page HTML after saving
+- Responses API requests set store=false
+- Do not send highly sensitive identity, medical, or financial data without an approved privacy and access-control policy

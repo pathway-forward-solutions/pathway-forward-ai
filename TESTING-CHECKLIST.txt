@@ -1,0 +1,10 @@
+PFS STAGING TEST CHECKLIST — Pathway Forward AI 0.5.0
+
+[ ] Plugin activates without an error.
+[ ] WordPress admin shows Pathway Forward AI > Mission Control.
+[ ] Mission Control displays participant totals.
+[ ] Participants card opens the existing participant directory.
+[ ] Add Participant opens the existing participant form.
+[ ] Academy card reports Connected when PFS Academy is active.
+[ ] Dashboard is readable on a phone.
+[ ] Existing Pathway Forward Platform and PFS Academy remain active.

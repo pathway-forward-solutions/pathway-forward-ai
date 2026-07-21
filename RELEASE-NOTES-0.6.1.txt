@@ -1,0 +1,12 @@
+Pathway Forward AI 0.6.1 — Case Management Workspace
+
+NEW
+- Add and complete participant tasks
+- Add timestamped case notes
+- Add named document links
+- Automatic participant activity timeline
+- Live open-task and document counts
+- AI-ready summary now considers open tasks
+
+DATA
+Workspace activity is stored as participant post metadata and remains attached to the participant record.

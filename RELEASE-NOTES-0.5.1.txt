@@ -1,0 +1,15 @@
+PATHWAY FORWARD AI 0.5.1
+
+MISSION CONTROL ACCESS FIX
+
+- Renames the main WordPress admin menu to "PFS Mission Control" for easier identification.
+- Adds a second Mission Control link under Tools.
+- Adds a Mission Control link to the top WordPress admin toolbar.
+- Adds a Mission Control action link directly on the Installed Plugins page.
+- Keeps all Mission Control 2.0 dashboard features from version 0.5.0.
+
+STAGING TEST
+1. Replace Pathway Forward AI with this ZIP.
+2. On Installed Plugins, click Mission Control under Pathway Forward AI.
+3. Confirm PFS Mission Control appears in the left menu.
+4. Confirm Tools > PFS Mission Control opens the same dashboard.
