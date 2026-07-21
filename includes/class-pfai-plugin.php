@@ -8,6 +8,7 @@ require_once PFAI_PLUGIN_DIR . 'admin/class-pfai-admin.php';
 class PFAI_Plugin {
     public function run() {
         add_action('plugins_loaded', array($this, 'load_textdomain'));
+        PFAI_Employers::register_hooks();
 
         if (is_admin()) {
             $admin = new PFAI_Admin();

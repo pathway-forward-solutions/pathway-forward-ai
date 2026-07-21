@@ -16,12 +16,14 @@ if (!defined('ABSPATH')) {
 }
 
 define('PFAI_VERSION', '0.8.0');
+define('PFAI_DB_VERSION', '0.8.0');
 define('PFAI_PLUGIN_FILE', __FILE__);
 define('PFAI_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('PFAI_PLUGIN_URL', plugin_dir_url(__FILE__));
 
 require_once PFAI_PLUGIN_DIR . 'includes/class-pfai-activator.php';
 require_once PFAI_PLUGIN_DIR . 'includes/class-pfai-deactivator.php';
+require_once PFAI_PLUGIN_DIR . 'includes/class-pfai-employers.php';
 require_once PFAI_PLUGIN_DIR . 'includes/class-pfai-plugin.php';
 
 register_activation_hook(__FILE__, array('PFAI_Activator', 'activate'));

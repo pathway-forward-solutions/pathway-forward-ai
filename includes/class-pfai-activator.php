@@ -19,28 +19,9 @@ class PFAI_Activator {
         add_option('pfai_version', PFAI_VERSION);
         add_option('pfai_organization_name', 'Pathway Forward Solutions Inc.');
         add_option('pfai_setup_complete', '0');
+        add_option('pfai_employers_db_version', PFAI_DB_VERSION);
 
-        $charset_collate = $wpdb->get_charset_collate();
-        $table_name = $wpdb->prefix . 'pfai_employers';
-
-        $sql = "CREATE TABLE IF NOT EXISTS $table_name (
-            id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
-            employer_name varchar(255) NOT NULL,
-            organization_name varchar(255) DEFAULT '',
-            contact_name varchar(255) DEFAULT '',
-            email varchar(255) DEFAULT '',
-            phone varchar(100) DEFAULT '',
-            partnership_status varchar(50) NOT NULL DEFAULT 'prospect',
-            hiring_needs longtext DEFAULT '',
-            interaction_notes longtext DEFAULT '',
-            follow_up_date date DEFAULT NULL,
-            created_at datetime NOT NULL,
-            updated_at datetime NOT NULL,
-            PRIMARY KEY  (id)
-        ) $charset_collate;";
-
-        require_once ABSPATH . 'wp-admin/includes/upgrade.php';
-        dbDelta($sql);
+        PFAI_Employers::install();
 
         flush_rewrite_rules();
     }

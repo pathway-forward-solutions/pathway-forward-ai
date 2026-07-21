@@ -34,13 +34,19 @@ $statuses = array(
         </div>
     <?php endif; ?>
 
+    <?php if (!empty($_GET['error'])) : ?>
+        <div class="notice notice-error inline">
+            <p><?php echo esc_html__('The employer form could not be saved. Please review the values and try again.', 'pathway-forward-ai'); ?></p>
+        </div>
+    <?php endif; ?>
+
     <div class="pfai-grid pfai-main-grid">
         <section class="pfai-panel">
             <h2><?php echo $edit_employer ? esc_html__('Edit Employer', 'pathway-forward-ai') : esc_html__('Add Employer', 'pathway-forward-ai'); ?></h2>
             <form method="post" class="pfai-entity-form">
                 <?php wp_nonce_field('pfai_save_employer', 'pfai_employer_crm_nonce'); ?>
                 <input type="hidden" name="pfai_employer_action" value="save" />
-                <input type="hidden" name="pfai_employer_id" value="<?php echo esc_attr((int) $edit_employer->id); ?>" />
+                <input type="hidden" name="pfai_employer_id" value="<?php echo esc_attr($edit_employer ? (int) $edit_employer->id : 0); ?>" />
 
                 <div class="pfai-form-row">
                     <label for="pfai_employer_name"><?php echo esc_html__('Employer name', 'pathway-forward-ai'); ?></label>
