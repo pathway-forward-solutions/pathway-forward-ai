@@ -4,6 +4,15 @@ if (!defined('ABSPATH')) {
 }
 
 class PFAI_Admin {
+    private function get_allowed_employer_statuses() {
+        return array('prospect', 'active', 'paused', 'inactive');
+    }
+
+    private function sanitize_employer_status($status) {
+        $status = sanitize_key($status);
+        return in_array($status, $this->get_allowed_employer_statuses(), true) ? $status : 'prospect';
+    }
+
     public function register_hooks() {
         add_action('admin_menu', array($this, 'register_menu'));
         add_action('admin_enqueue_scripts', array($this, 'enqueue_assets'));
@@ -117,7 +126,7 @@ class PFAI_Admin {
     }
 
     public function handle_employer_form() {
-        if (!isset($_POST['pfai_employer_action']) || 'save' !== $_POST['pfai_employer_action']) {
+        if ('POST' !== $_SERVER['REQUEST_METHOD'] || !isset($_POST['pfai_employer_action']) || 'save' !== $_POST['pfai_employer_action']) {
             return;
         }
 
@@ -133,7 +142,7 @@ class PFAI_Admin {
             'contact_name' => sanitize_text_field(wp_unslash($_POST['contact_name'] ?? '')),
             'email' => sanitize_email(wp_unslash($_POST['email'] ?? '')),
             'phone' => sanitize_text_field(wp_unslash($_POST['phone'] ?? '')),
-            'partnership_status' => sanitize_key(wp_unslash($_POST['partnership_status'] ?? 'prospect')),
+            'partnership_status' => $this->sanitize_employer_status(wp_unslash($_POST['partnership_status'] ?? 'prospect')),
             'hiring_needs' => sanitize_textarea_field(wp_unslash($_POST['hiring_needs'] ?? '')),
             'interaction_notes' => sanitize_textarea_field(wp_unslash($_POST['interaction_notes'] ?? '')),
             'follow_up_date' => !empty($_POST['follow_up_date']) ? sanitize_text_field(wp_unslash($_POST['follow_up_date'])) : null,
@@ -143,11 +152,12 @@ class PFAI_Admin {
         $id = isset($_POST['pfai_employer_id']) ? absint($_POST['pfai_employer_id']) : 0;
 
         if ($id) {
-            $wpdb->update($table_name, $data, array('id' => $id), $format, array('%d'));
+            $data['updated_at'] = current_time('mysql');
+            $wpdb->update($table_name, $data, array('id' => $id), array_merge($format, array('%s')), array('%d'));
         } else {
             $data['created_at'] = current_time('mysql');
             $data['updated_at'] = current_time('mysql');
-            $wpdb->insert($table_name, $data, $format + array('%s', '%s'));
+            $wpdb->insert($table_name, $data, array_merge($format, array('%s', '%s')));
         }
 
         wp_safe_redirect(add_query_arg(array('page' => 'pathway-forward-ai-employers', 'saved' => 1), admin_url('admin.php')));
@@ -179,7 +189,7 @@ class PFAI_Admin {
         global $wpdb;
         $table_name = $wpdb->prefix . 'pfai_employers';
         $search = isset($_GET['s']) ? sanitize_text_field(wp_unslash($_GET['s'])) : '';
-        $status = isset($_GET['status']) ? sanitize_key(wp_unslash($_GET['status'])) : '';
+        $status = isset($_GET['status']) ? $this->sanitize_employer_status(wp_unslash($_GET['status'])) : '';
         $follow_up = isset($_GET['follow_up']) ? sanitize_key(wp_unslash($_GET['follow_up'])) : '';
         $edit_id = isset($_GET['edit']) ? absint($_GET['edit']) : 0;
         $delete_id = isset($_GET['delete']) ? absint($_GET['delete']) : 0;
