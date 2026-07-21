@@ -1,2 +1,2 @@
 <?php
-// Icon assets directory.
+// Silence is golden.

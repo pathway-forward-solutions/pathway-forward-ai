@@ -1,256 +1,173 @@
 <?php
-if (!defined('ABSPATH')) {
-    exit;
-}
+if (!defined('ABSPATH')) exit;
 
 class PFAI_Admin {
-    private function get_allowed_employer_statuses() {
-        return array('prospect', 'active', 'paused', 'inactive');
-    }
-
-    private function sanitize_employer_status($status) {
-        $status = sanitize_key($status);
-        return in_array($status, $this->get_allowed_employer_statuses(), true) ? $status : 'prospect';
-    }
+    private $pages = array(
+        'pathway-forward-ai' => 'dashboard',
+        'pfai-participants' => 'participants',
+        'pfai-participant-workspace' => 'participant-workspace',
+        'pfai-ai-coach' => 'placeholder',
+        'pfai-employers' => 'placeholder',
+        'pfai-case-management' => 'case-management',
+        'pfai-follow-ups' => 'follow-ups',
+        'pfai-reports' => 'reports',
+        'pfai-ai-center' => 'placeholder',
+        'pathway-forward-ai-settings' => 'settings',
+    );
 
     public function register_hooks() {
         add_action('admin_menu', array($this, 'register_menu'));
         add_action('admin_enqueue_scripts', array($this, 'enqueue_assets'));
         add_action('admin_init', array($this, 'register_settings'));
-        add_action('admin_init', array($this, 'handle_employer_form'));
+        add_action('admin_bar_menu', array($this, 'register_toolbar_link'), 90);
+        add_filter('plugin_action_links_' . plugin_basename(PFAI_PLUGIN_FILE), array($this, 'plugin_action_links'));
     }
 
     public function register_menu() {
+        $capability = 'manage_options';
+
         add_menu_page(
-            __('Pathway Forward AI', 'pathway-forward-ai'),
-            __('Pathway Forward AI', 'pathway-forward-ai'),
-            'manage_options',
+            'Pathway Forward Mission Control',
+            'PFS Mission Control',
+            $capability,
             'pathway-forward-ai',
-            array($this, 'render_dashboard'),
+            array($this, 'render_current_page'),
             'dashicons-chart-area',
-            3
+            58
         );
 
-        add_submenu_page(
-            'pathway-forward-ai',
-            __('Mission Control', 'pathway-forward-ai'),
-            __('Mission Control', 'pathway-forward-ai'),
-            'manage_options',
-            'pathway-forward-ai',
-            array($this, 'render_dashboard')
+        $items = array(
+            array('Mission Control','Mission Control','pathway-forward-ai'),
+            array('Participants','Participants','pfai-participants'),
+            array('Participant Workspace','Participant Workspace','pfai-participant-workspace'),
+            array('All Participants','All Participants','edit.php?post_type=pfai_participant'),
+            array('Add Participant','Add Participant','post-new.php?post_type=pfai_participant'),
+            array('Case Management','Case Management','pfai-case-management'),
+            array('Follow-Up Queue','Follow-Up Queue','pfai-follow-ups'),
+            array('AI Career Coach','AI Career Coach','pfai-ai-coach'),
+            array('Employers','Employers','pfai-employers'),
+            array('Reports','Reports','pfai-reports'),
+            array('AI Center','AI Center','pfai-ai-center'),
+            array('Settings','Settings','pathway-forward-ai-settings'),
         );
 
-        add_submenu_page(
-            'pathway-forward-ai',
-            __('Employer CRM', 'pathway-forward-ai'),
-            __('Employer CRM', 'pathway-forward-ai'),
-            'manage_options',
-            'pathway-forward-ai-employers',
-            array($this, 'render_employer_crm')
-        );
+        foreach ($items as $item) {
+            add_submenu_page(
+                'pathway-forward-ai',
+                $item[0],
+                $item[1],
+                $capability,
+                $item[2],
+                array($this, 'render_current_page')
+            );
+        }
 
-        add_submenu_page(
-            'pathway-forward-ai',
-            __('Settings', 'pathway-forward-ai'),
-            __('Settings', 'pathway-forward-ai'),
-            'manage_options',
-            'pathway-forward-ai-settings',
-            array($this, 'render_settings')
+        // WordPress.com can reorganize top-level menus. This Tools entry provides
+        // a dependable second route to the same Mission Control dashboard.
+        add_management_page(
+            'Pathway Forward Mission Control',
+            'PFS Mission Control',
+            $capability,
+            'pfai-mission-control',
+            array($this, 'render_mission_control')
         );
     }
 
-    public function enqueue_assets($hook_suffix) {
-        if (strpos($hook_suffix, 'pathway-forward-ai') === false) {
+    public function register_toolbar_link($wp_admin_bar) {
+        if (!is_admin_bar_showing() || !current_user_can('manage_options')) {
             return;
         }
 
-        wp_enqueue_style(
-            'pfai-admin',
-            PFAI_PLUGIN_URL . 'admin/css/admin.css',
-            array(),
-            PFAI_VERSION
-        );
-
-        wp_enqueue_script(
-            'pfai-admin',
-            PFAI_PLUGIN_URL . 'admin/js/admin.js',
-            array(),
-            PFAI_VERSION,
-            true
-        );
+        $wp_admin_bar->add_node(array(
+            'id'    => 'pfai-mission-control',
+            'title' => 'PFS Mission Control',
+            'href'  => admin_url('admin.php?page=pathway-forward-ai'),
+            'meta'  => array('class' => 'pfai-toolbar-link'),
+        ));
     }
 
-    public function register_settings() {
-        register_setting(
-            'pfai_settings_group',
-            'pfai_organization_name',
-            array(
-                'type' => 'string',
-                'sanitize_callback' => 'sanitize_text_field',
-                'default' => 'Pathway Forward Solutions Inc.',
-            )
+    public function plugin_action_links($links) {
+        $mission_control = sprintf(
+            '<a href="%s"><strong>%s</strong></a>',
+            esc_url(admin_url('admin.php?page=pathway-forward-ai')),
+            esc_html__('Mission Control', 'pathway-forward-ai')
         );
-
-        register_setting(
-            'pfai_settings_group',
-            'pfai_support_email',
-            array(
-                'type' => 'string',
-                'sanitize_callback' => 'sanitize_email',
-                'default' => get_option('admin_email'),
-            )
-        );
-
-        add_settings_section(
-            'pfai_general_section',
-            __('Organization Settings', 'pathway-forward-ai'),
-            array($this, 'render_settings_section'),
-            'pathway-forward-ai-settings'
-        );
-
-        add_settings_field(
-            'pfai_organization_name',
-            __('Organization name', 'pathway-forward-ai'),
-            array($this, 'render_organization_name_field'),
-            'pathway-forward-ai-settings',
-            'pfai_general_section'
-        );
-
-        add_settings_field(
-            'pfai_support_email',
-            __('Support email', 'pathway-forward-ai'),
-            array($this, 'render_support_email_field'),
-            'pathway-forward-ai-settings',
-            'pfai_general_section'
-        );
+        array_unshift($links, $mission_control);
+        return $links;
     }
 
-    public function handle_employer_form() {
-        if ('POST' !== $_SERVER['REQUEST_METHOD'] || !isset($_POST['pfai_employer_action']) || 'save' !== $_POST['pfai_employer_action']) {
-            return;
-        }
-
-        if (!current_user_can('manage_options') || !wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['pfai_employer_crm_nonce'] ?? '')), 'pfai_save_employer')) {
-            wp_die(esc_html__('Unauthorized request.', 'pathway-forward-ai'));
-        }
-
-        global $wpdb;
-        $table_name = $wpdb->prefix . 'pfai_employers';
-        $data = array(
-            'employer_name' => sanitize_text_field(wp_unslash($_POST['employer_name'] ?? '')),
-            'organization_name' => sanitize_text_field(wp_unslash($_POST['organization_name'] ?? '')),
-            'contact_name' => sanitize_text_field(wp_unslash($_POST['contact_name'] ?? '')),
-            'email' => sanitize_email(wp_unslash($_POST['email'] ?? '')),
-            'phone' => sanitize_text_field(wp_unslash($_POST['phone'] ?? '')),
-            'partnership_status' => $this->sanitize_employer_status(wp_unslash($_POST['partnership_status'] ?? 'prospect')),
-            'hiring_needs' => sanitize_textarea_field(wp_unslash($_POST['hiring_needs'] ?? '')),
-            'interaction_notes' => sanitize_textarea_field(wp_unslash($_POST['interaction_notes'] ?? '')),
-            'follow_up_date' => !empty($_POST['follow_up_date']) ? sanitize_text_field(wp_unslash($_POST['follow_up_date'])) : null,
-        );
-
-        $format = array('%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s');
-        $id = isset($_POST['pfai_employer_id']) ? absint($_POST['pfai_employer_id']) : 0;
-
-        if ($id) {
-            $data['updated_at'] = current_time('mysql');
-            $wpdb->update($table_name, $data, array('id' => $id), array_merge($format, array('%s')), array('%d'));
-        } else {
-            $data['created_at'] = current_time('mysql');
-            $data['updated_at'] = current_time('mysql');
-            $wpdb->insert($table_name, $data, array_merge($format, array('%s', '%s')));
-        }
-
-        wp_safe_redirect(add_query_arg(array('page' => 'pathway-forward-ai-employers', 'saved' => 1), admin_url('admin.php')));
-        exit;
-    }
-
-    public function render_dashboard() {
+    public function render_mission_control() {
         if (!current_user_can('manage_options')) {
             return;
         }
-
-        global $wpdb;
-        $table_name = $wpdb->prefix . 'pfai_employers';
-        $organization_name = get_option('pfai_organization_name', 'Pathway Forward Solutions Inc.');
-        $stats = array(
-            'employers' => (int) $wpdb->get_var("SELECT COUNT(*) FROM $table_name"),
-            'active' => (int) $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM $table_name WHERE partnership_status = %s", 'active')),
-            'follow_up' => (int) $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM $table_name WHERE follow_up_date IS NOT NULL AND follow_up_date <= %s", current_time('Y-m-d'))),
-            'prospects' => (int) $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM $table_name WHERE partnership_status = %s", 'prospect')),
-        );
+        $page_slug = 'pathway-forward-ai';
         include PFAI_PLUGIN_DIR . 'admin/partials/dashboard.php';
     }
 
-    public function render_employer_crm() {
-        if (!current_user_can('manage_options')) {
-            return;
-        }
+    public function enqueue_assets($hook_suffix) {
+        if (
+            strpos($hook_suffix, 'pathway-forward-ai') === false &&
+            strpos($hook_suffix, 'pfai-') === false &&
+            get_post_type() !== 'pfai_participant'
+        ) return;
 
-        global $wpdb;
-        $table_name = $wpdb->prefix . 'pfai_employers';
-        $search = isset($_GET['s']) ? sanitize_text_field(wp_unslash($_GET['s'])) : '';
-        $status = isset($_GET['status']) ? $this->sanitize_employer_status(wp_unslash($_GET['status'])) : '';
-        $follow_up = isset($_GET['follow_up']) ? sanitize_key(wp_unslash($_GET['follow_up'])) : '';
-        $edit_id = isset($_GET['edit']) ? absint($_GET['edit']) : 0;
-        $delete_id = isset($_GET['delete']) ? absint($_GET['delete']) : 0;
-
-        if ($delete_id && wp_verify_nonce(sanitize_text_field(wp_unslash($_GET['_wpnonce'] ?? '')), 'pfai_delete_employer_' . $delete_id)) {
-            $wpdb->delete($table_name, array('id' => $delete_id), array('%d'));
-            wp_safe_redirect(add_query_arg(array('page' => 'pathway-forward-ai-employers', 'deleted' => 1), admin_url('admin.php')));
-            exit;
-        }
-
-        $edit_employer = null;
-        if ($edit_id) {
-            $edit_employer = $wpdb->get_row($wpdb->prepare("SELECT * FROM $table_name WHERE id = %d", $edit_id));
-        }
-
-        $query = "SELECT * FROM $table_name WHERE 1=1";
-        if ($search !== '') {
-            $query .= ' AND (employer_name LIKE %s OR organization_name LIKE %s OR contact_name LIKE %s OR email LIKE %s OR hiring_needs LIKE %s OR interaction_notes LIKE %s)';
-            $like = '%' . $wpdb->esc_like($search) . '%';
-            $query = $wpdb->prepare($query, $like, $like, $like, $like, $like, $like);
-        }
-        if ($status !== '') {
-            $query .= ' AND partnership_status = %s';
-            $query = $wpdb->prepare($query, $status);
-        }
-        if ($follow_up === 'due') {
-            $query .= ' AND follow_up_date IS NOT NULL AND follow_up_date <= %s';
-            $query = $wpdb->prepare($query, current_time('Y-m-d'));
-        }
-
-        $query .= ' ORDER BY follow_up_date IS NULL, follow_up_date ASC, employer_name ASC';
-        $employers = $wpdb->get_results($query);
-
-        include PFAI_PLUGIN_DIR . 'admin/partials/employer-crm.php';
+        wp_enqueue_style('pfai-admin', PFAI_PLUGIN_URL . 'admin/css/admin.css', array(), PFAI_VERSION);
     }
 
-    public function render_settings() {
-        if (!current_user_can('manage_options')) {
-            return;
-        }
+    public function register_settings() {
+        register_setting('pfai_settings_group','pfai_organization_name',array(
+            'type'=>'string','sanitize_callback'=>'sanitize_text_field','default'=>'Pathway Forward Solutions Inc.'
+        ));
+        register_setting('pfai_settings_group','pfai_support_email',array(
+            'type'=>'string','sanitize_callback'=>'sanitize_email','default'=>get_option('admin_email')
+        ));
+        register_setting('pfai_settings_group','pfai_openai_api_key',array(
+            'type'=>'string','sanitize_callback'=>array($this,'sanitize_api_key'),'default'=>''
+        ));
+        register_setting('pfai_settings_group','pfai_openai_model',array(
+            'type'=>'string','sanitize_callback'=>'sanitize_text_field','default'=>'gpt-5-mini'
+        ));
 
-        include PFAI_PLUGIN_DIR . 'admin/partials/settings.php';
+        add_settings_section('pfai_general','Organization Settings',function(){
+            echo '<p>Configure your organization identity and support contact.</p>';
+        },'pathway-forward-ai-settings');
+
+        add_settings_field('pfai_organization_name','Organization name',function(){
+            printf('<input type="text" class="regular-text" name="pfai_organization_name" value="%s">',esc_attr(get_option('pfai_organization_name','Pathway Forward Solutions Inc.')));
+        },'pathway-forward-ai-settings','pfai_general');
+
+        add_settings_field('pfai_support_email','Support email',function(){
+            printf('<input type="email" class="regular-text" name="pfai_support_email" value="%s">',esc_attr(get_option('pfai_support_email',get_option('admin_email'))));
+        },'pathway-forward-ai-settings','pfai_general');
+
+        add_settings_section('pfai_ai','AI Connection',function(){
+            echo '<p>Connect the platform to the OpenAI API. For stronger security, the key can instead be defined as <code>PFAI_OPENAI_API_KEY</code> in wp-config.php.</p>';
+        },'pathway-forward-ai-settings');
+
+        add_settings_field('pfai_openai_api_key','OpenAI API key',function(){
+            $configured = PFAI_AI_Service::is_configured();
+            printf('<input type="password" class="regular-text" name="pfai_openai_api_key" value="" autocomplete="new-password" placeholder="%s"><p class="description">%s Leave blank to keep the existing saved key.</p>', $configured ? 'Key configured' : 'sk-...', $configured ? 'AI connection is currently configured.' : 'No API key is configured.');
+        },'pathway-forward-ai-settings','pfai_ai');
+
+        add_settings_field('pfai_openai_model','AI model',function(){
+            printf('<input type="text" class="regular-text" name="pfai_openai_model" value="%s"><p class="description">Recommended starting value: gpt-5-mini.</p>',esc_attr(get_option('pfai_openai_model','gpt-5-mini')));
+        },'pathway-forward-ai-settings','pfai_ai');
     }
 
-    public function render_settings_section() {
-        echo '<p>' . esc_html__('Configure the basic identity and contact information for your platform.', 'pathway-forward-ai') . '</p>';
+
+    public function sanitize_api_key($value) {
+        $value = trim((string) $value);
+        if ($value === '') return get_option('pfai_openai_api_key', '');
+        return preg_replace('/[^A-Za-z0-9_\-\.]/', '', $value);
     }
 
-    public function render_organization_name_field() {
-        $value = get_option('pfai_organization_name', 'Pathway Forward Solutions Inc.');
-        printf(
-            '<input type="text" class="regular-text" name="pfai_organization_name" value="%s" />',
-            esc_attr($value)
-        );
-    }
+    public function render_current_page() {
+        if (!current_user_can('manage_options')) return;
 
-    public function render_support_email_field() {
-        $value = get_option('pfai_support_email', get_option('admin_email'));
-        printf(
-            '<input type="email" class="regular-text" name="pfai_support_email" value="%s" />',
-            esc_attr($value)
-        );
+        $slug = isset($_GET['page']) ? sanitize_key($_GET['page']) : 'pathway-forward-ai';
+        $template = isset($this->pages[$slug]) ? $this->pages[$slug] : 'dashboard';
+        $page_slug = $slug;
+
+        include PFAI_PLUGIN_DIR . 'admin/partials/' . $template . '.php';
     }
 }

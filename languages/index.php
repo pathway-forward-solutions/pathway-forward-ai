@@ -1,2 +1,2 @@
 <?php
-// Translation files directory.
+// Silence is golden.
