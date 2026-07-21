@@ -4,14 +4,14 @@ Tags: workforce development, nonprofit, career coaching, dashboard
 Requires at least: 6.0
 Tested up to: 6.6
 Requires PHP: 7.4
-Stable tag: 0.1.0
+Stable tag: 0.8.0
 License: GPLv2 or later
 
 Mission Control and workforce-development tools for Pathway Forward Solutions.
 
 == Description ==
 
-Version 0.1.0 provides:
+Version 0.8.0 provides:
 
 * A branded WordPress admin menu
 * Mission Control dashboard
@@ -29,6 +29,9 @@ Version 0.1.0 provides:
 4. Review Settings.
 
 == Changelog ==
+
+= 0.8.0 =
+* Added an Employer CRM with profiles, contact details, partnership status, hiring needs, interaction notes, follow-up dates, search, filters, and dashboard statistics.
 
 = 0.1.0 =
 * Initial Mission Control release.

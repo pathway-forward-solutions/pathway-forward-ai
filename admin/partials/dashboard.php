@@ -33,11 +33,11 @@ if (!defined('ABSPATH')) {
         </div>
         <div class="pfai-card">
             <span class="dashicons dashicons-building"></span>
-            <div><strong>0</strong><span><?php echo esc_html__('Employers', 'pathway-forward-ai'); ?></span></div>
+            <div><strong><?php echo esc_html((int) $stats['employers']); ?></strong><span><?php echo esc_html__('Employers', 'pathway-forward-ai'); ?></span></div>
         </div>
         <div class="pfai-card">
             <span class="dashicons dashicons-portfolio"></span>
-            <div><strong>0</strong><span><?php echo esc_html__('Jobs Posted', 'pathway-forward-ai'); ?></span></div>
+            <div><strong><?php echo esc_html((int) $stats['active']); ?></strong><span><?php echo esc_html__('Active Partnerships', 'pathway-forward-ai'); ?></span></div>
         </div>
     </div>
 
@@ -46,13 +46,13 @@ if (!defined('ABSPATH')) {
             <h2><?php echo esc_html__('Quick Actions', 'pathway-forward-ai'); ?></h2>
             <div class="pfai-actions">
                 <button class="button button-primary" disabled><?php echo esc_html__('Add Participant', 'pathway-forward-ai'); ?></button>
-                <button class="button" disabled><?php echo esc_html__('Add Employer', 'pathway-forward-ai'); ?></button>
+                <a class="button" href="<?php echo esc_url(admin_url('admin.php?page=pathway-forward-ai-employers')); ?>"><?php echo esc_html__('Manage Employers', 'pathway-forward-ai'); ?></a>
                 <button class="button" disabled><?php echo esc_html__('Open AI Career Coach', 'pathway-forward-ai'); ?></button>
                 <a class="button" href="<?php echo esc_url(admin_url('admin.php?page=pathway-forward-ai-settings')); ?>">
                     <?php echo esc_html__('Settings', 'pathway-forward-ai'); ?>
                 </a>
             </div>
-            <p class="description"><?php echo esc_html__('Participant, employer, and AI tools will be enabled in upcoming milestones.', 'pathway-forward-ai'); ?></p>
+            <p class="description"><?php echo esc_html__('Employer CRM records now power the dashboard with live partnership and follow-up statistics.', 'pathway-forward-ai'); ?></p>
         </section>
 
         <section class="pfai-panel">
@@ -60,8 +60,8 @@ if (!defined('ABSPATH')) {
             <ul class="pfai-status-list">
                 <li><span class="pfai-dot is-good"></span><?php echo esc_html__('Plugin active', 'pathway-forward-ai'); ?></li>
                 <li><span class="pfai-dot is-good"></span><?php echo esc_html__('WordPress connection ready', 'pathway-forward-ai'); ?></li>
+                <li><span class="pfai-dot is-good"></span><?php echo esc_html(sprintf(__('Employer CRM records: %d', 'pathway-forward-ai'), (int) $stats['employers'])); ?></li>
                 <li><span class="pfai-dot is-pending"></span><?php echo esc_html__('AI provider not connected', 'pathway-forward-ai'); ?></li>
-                <li><span class="pfai-dot is-pending"></span><?php echo esc_html__('Participant module not installed', 'pathway-forward-ai'); ?></li>
             </ul>
         </section>
     </div>
