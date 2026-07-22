@@ -1,0 +1,10 @@
+Pathway Forward AI 0.6.2 — Computer File Uploads
+
+Changed
+- Replaced the document URL field with a file picker.
+- Staff can upload PDF, Word, Excel, JPG, and PNG files from their computer.
+- Uploaded files are attached to the participant and listed in the Participant Workspace.
+- Uploads create timeline activity automatically.
+
+Security note
+- Files use the standard WordPress Media Library. Do not upload Social Security cards, medical records, or other highly sensitive documents until a private-document storage layer is added.

@@ -20,8 +20,10 @@ class PFAI_Activator {
         add_option('pfai_organization_name', 'Pathway Forward Solutions Inc.');
         add_option('pfai_setup_complete', '0');
         add_option('pfai_employers_db_version', PFAI_DB_VERSION);
+        add_option('pfai_support_email', get_option('admin_email'));
 
         PFAI_Employers::install();
+        PFAI_Participants::register_post_type();
 
         flush_rewrite_rules();
     }

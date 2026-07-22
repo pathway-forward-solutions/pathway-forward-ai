@@ -1,37 +1,16 @@
 === Pathway Forward AI ===
-Contributors: pathway-forward-solutions
-Tags: workforce development, nonprofit, career coaching, dashboard
 Requires at least: 6.0
-Tested up to: 6.6
 Requires PHP: 7.4
-Stable tag: 0.8.0
+Stable tag: 0.4.0
 License: GPLv2 or later
-
-Mission Control and workforce-development tools for Pathway Forward Solutions.
-
-== Description ==
-
-Version 0.8.0 provides:
-
-* A branded WordPress admin menu
-* Mission Control dashboard
-* Platform statistics placeholders
-* Quick actions
-* System status
-* Organization settings
-* Activation and deactivation hooks
-
-== Installation ==
-
-1. Upload the ZIP through Plugins > Add New > Upload Plugin.
-2. Activate Pathway Forward AI.
-3. Open Pathway Forward AI in the WordPress admin menu.
-4. Review Settings.
 
 == Changelog ==
 
-= 0.8.0 =
-* Added an Employer CRM with profiles, contact details, partnership status, hiring needs, interaction notes, follow-up dates, search, filters, and dashboard statistics.
+= 0.5.2 =
+* Adds multiple reliable access points for Mission Control in WordPress.com.
 
-= 0.1.0 =
-* Initial Mission Control release.
+= 0.4.0 =
+* Expanded participant intake.
+* Added emergency contact, program, funding, eligibility, and employment fields.
+* Added document links, case notes, and follow-up dates.
+* Added follow-up queue and live dashboard statistics.

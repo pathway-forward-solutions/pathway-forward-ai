@@ -9,10 +9,10 @@ class PFAI_Plugin {
     public function run() {
         add_action('plugins_loaded', array($this, 'load_textdomain'));
         PFAI_Employers::register_hooks();
+        PFAI_Participants::register_hooks();
 
         if (is_admin()) {
-            $admin = new PFAI_Admin();
-            $admin->register_hooks();
+            (new PFAI_Admin())->register_hooks();
         }
     }
 
