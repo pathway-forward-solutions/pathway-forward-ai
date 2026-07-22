@@ -65,7 +65,7 @@ $module_cards = array(
         'description' => 'Employer relationships, contacts, opportunities, and placements.',
         'icon' => 'dashicons-building',
         'url' => admin_url('admin.php?page=pfai-employers'),
-        'status' => 'Next sprint',
+        'status' => 'Available',
     ),
     array(
         'title' => 'AI Center',
