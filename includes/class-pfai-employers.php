@@ -268,5 +268,4 @@ class PFAI_Employers {
 
         return (string) $value;
     }
-    }
 }
