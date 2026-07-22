@@ -40,41 +40,44 @@ $statuses = array(
         </div>
     <?php endif; ?>
 
-    <div class="pfai-grid pfai-main-grid">
-        <section class="pfai-panel">
-            <h2><?php echo $edit_employer ? esc_html__('Edit Employer', 'pathway-forward-ai') : esc_html__('Add Employer', 'pathway-forward-ai'); ?></h2>
+    <div class="pfai-entity-layout">
+        <section class="pfai-panel pfai-panel-compact">
+            <div class="pfai-panel-heading">
+                <div>
+                    <p class="pfai-kicker">Employer profile</p>
+                    <h2><?php echo $edit_employer ? esc_html__('Edit Employer', 'pathway-forward-ai') : esc_html__('Add Employer', 'pathway-forward-ai'); ?></h2>
+                </div>
+            </div>
             <form method="post" class="pfai-entity-form">
                 <?php wp_nonce_field('pfai_save_employer', 'pfai_employer_crm_nonce'); ?>
                 <input type="hidden" name="pfai_employer_action" value="save" />
                 <input type="hidden" name="pfai_employer_id" value="<?php echo esc_attr($edit_employer ? (int) $edit_employer->id : 0); ?>" />
 
-                <div class="pfai-form-row">
-                    <label for="pfai_employer_name"><?php echo esc_html__('Employer name', 'pathway-forward-ai'); ?></label>
-                    <input type="text" id="pfai_employer_name" name="employer_name" value="<?php echo esc_attr($edit_employer ? $edit_employer->employer_name : ''); ?>" required />
-                </div>
+                <div class="pfai-form-grid">
+                    <div class="pfai-form-field pfai-form-field-full">
+                        <label for="pfai_employer_name"><?php echo esc_html__('Employer name', 'pathway-forward-ai'); ?></label>
+                        <input type="text" id="pfai_employer_name" name="employer_name" value="<?php echo esc_attr($edit_employer ? $edit_employer->employer_name : ''); ?>" required />
+                    </div>
 
-                <div class="pfai-form-row">
-                    <label for="pfai_organization_name"><?php echo esc_html__('Organization name', 'pathway-forward-ai'); ?></label>
-                    <input type="text" id="pfai_organization_name" name="organization_name" value="<?php echo esc_attr($edit_employer ? $edit_employer->organization_name : ''); ?>" />
-                </div>
+                    <div class="pfai-form-field pfai-form-field-full">
+                        <label for="pfai_organization_name"><?php echo esc_html__('Organization name', 'pathway-forward-ai'); ?></label>
+                        <input type="text" id="pfai_organization_name" name="organization_name" value="<?php echo esc_attr($edit_employer ? $edit_employer->organization_name : ''); ?>" />
+                    </div>
 
-                <div class="pfai-form-row pfai-form-grid">
-                    <div>
+                    <div class="pfai-form-field">
                         <label for="pfai_contact_name"><?php echo esc_html__('Contact name', 'pathway-forward-ai'); ?></label>
                         <input type="text" id="pfai_contact_name" name="contact_name" value="<?php echo esc_attr($edit_employer ? $edit_employer->contact_name : ''); ?>" />
                     </div>
-                    <div>
+                    <div class="pfai-form-field">
                         <label for="pfai_email"><?php echo esc_html__('Email', 'pathway-forward-ai'); ?></label>
                         <input type="email" id="pfai_email" name="email" value="<?php echo esc_attr($edit_employer ? $edit_employer->email : ''); ?>" />
                     </div>
-                </div>
 
-                <div class="pfai-form-row pfai-form-grid">
-                    <div>
+                    <div class="pfai-form-field">
                         <label for="pfai_phone"><?php echo esc_html__('Phone', 'pathway-forward-ai'); ?></label>
                         <input type="text" id="pfai_phone" name="phone" value="<?php echo esc_attr($edit_employer ? $edit_employer->phone : ''); ?>" />
                     </div>
-                    <div>
+                    <div class="pfai-form-field">
                         <label for="pfai_partnership_status"><?php echo esc_html__('Partnership status', 'pathway-forward-ai'); ?></label>
                         <select id="pfai_partnership_status" name="partnership_status">
                             <?php foreach ($statuses as $key => $label) : ?>
@@ -82,34 +85,44 @@ $statuses = array(
                             <?php endforeach; ?>
                         </select>
                     </div>
+
+                    <div class="pfai-form-field">
+                        <label for="pfai_follow_up_date"><?php echo esc_html__('Follow-up date', 'pathway-forward-ai'); ?></label>
+                        <input type="date" id="pfai_follow_up_date" name="follow_up_date" value="<?php echo esc_attr($edit_employer && !empty($edit_employer->follow_up_date) && '0000-00-00' !== $edit_employer->follow_up_date ? $edit_employer->follow_up_date : ''); ?>" />
+                    </div>
+
+                    <div class="pfai-form-field">
+                        <label for="pfai_status_note">&nbsp;</label>
+                        <div class="pfai-inline-hint"><?php echo esc_html__('Leave blank to store no follow-up date.', 'pathway-forward-ai'); ?></div>
+                    </div>
+
+                    <div class="pfai-form-field pfai-form-field-full">
+                        <label for="pfai_hiring_needs"><?php echo esc_html__('Hiring needs', 'pathway-forward-ai'); ?></label>
+                        <textarea id="pfai_hiring_needs" name="hiring_needs" rows="4"><?php echo esc_textarea($edit_employer ? $edit_employer->hiring_needs : ''); ?></textarea>
+                    </div>
+
+                    <div class="pfai-form-field pfai-form-field-full">
+                        <label for="pfai_interaction_notes"><?php echo esc_html__('Interaction notes', 'pathway-forward-ai'); ?></label>
+                        <textarea id="pfai_interaction_notes" name="interaction_notes" rows="5"><?php echo esc_textarea($edit_employer ? $edit_employer->interaction_notes : ''); ?></textarea>
+                    </div>
                 </div>
 
-                <div class="pfai-form-row">
-                    <label for="pfai_follow_up_date"><?php echo esc_html__('Follow-up date', 'pathway-forward-ai'); ?></label>
-                    <input type="date" id="pfai_follow_up_date" name="follow_up_date" value="<?php echo esc_attr($edit_employer ? $edit_employer->follow_up_date : ''); ?>" />
-                </div>
-
-                <div class="pfai-form-row">
-                    <label for="pfai_hiring_needs"><?php echo esc_html__('Hiring needs', 'pathway-forward-ai'); ?></label>
-                    <textarea id="pfai_hiring_needs" name="hiring_needs" rows="4"><?php echo esc_textarea($edit_employer ? $edit_employer->hiring_needs : ''); ?></textarea>
-                </div>
-
-                <div class="pfai-form-row">
-                    <label for="pfai_interaction_notes"><?php echo esc_html__('Interaction notes', 'pathway-forward-ai'); ?></label>
-                    <textarea id="pfai_interaction_notes" name="interaction_notes" rows="5"><?php echo esc_textarea($edit_employer ? $edit_employer->interaction_notes : ''); ?></textarea>
-                </div>
-
-                <p class="submit">
+                <div class="pfai-form-actions">
                     <button type="submit" class="button button-primary"><?php echo esc_html__('Save Employer', 'pathway-forward-ai'); ?></button>
                     <?php if ($edit_employer) : ?>
                         <a class="button" href="<?php echo esc_url(admin_url('admin.php?page=pfai-employers')); ?>"><?php echo esc_html__('Cancel', 'pathway-forward-ai'); ?></a>
                     <?php endif; ?>
-                </p>
+                </div>
             </form>
         </section>
 
-        <section class="pfai-panel">
-            <h2><?php echo esc_html__('Employer Directory', 'pathway-forward-ai'); ?></h2>
+        <section class="pfai-panel pfai-panel-compact">
+            <div class="pfai-panel-heading">
+                <div>
+                    <p class="pfai-kicker">Employer directory</p>
+                    <h2><?php echo esc_html__('Employer Directory', 'pathway-forward-ai'); ?></h2>
+                </div>
+            </div>
             <form method="get" class="pfai-filter-form">
                 <input type="hidden" name="page" value="pfai-employers" />
                 <input type="text" name="s" value="<?php echo esc_attr($search); ?>" placeholder="<?php echo esc_attr__('Search employers', 'pathway-forward-ai'); ?>" />
@@ -140,10 +153,22 @@ $statuses = array(
                                 </div>
                                 <span class="pfai-status pfai-status-<?php echo esc_attr($employer->partnership_status); ?>"><?php echo esc_html($statuses[$employer->partnership_status] ?? $employer->partnership_status); ?></span>
                             </div>
-                            <p><strong><?php echo esc_html__('Contact:', 'pathway-forward-ai'); ?></strong> <?php echo esc_html($employer->contact_name); ?> · <?php echo esc_html($employer->email); ?> · <?php echo esc_html($employer->phone); ?></p>
-                            <p><strong><?php echo esc_html__('Hiring needs:', 'pathway-forward-ai'); ?></strong> <?php echo esc_html($employer->hiring_needs ?: __('No hiring needs noted yet.', 'pathway-forward-ai')); ?></p>
-                            <p><strong><?php echo esc_html__('Next follow-up:', 'pathway-forward-ai'); ?></strong> <?php echo esc_html(!empty($employer->follow_up_date) ? $employer->follow_up_date : __('No follow-up date set', 'pathway-forward-ai')); ?></p>
-                            <p><strong><?php echo esc_html__('Notes:', 'pathway-forward-ai'); ?></strong> <?php echo esc_html($employer->interaction_notes ?: __('No interaction notes documented yet.', 'pathway-forward-ai')); ?></p>
+                            <p class="pfai-employer-meta">
+                                <strong><?php echo esc_html__('Contact:', 'pathway-forward-ai'); ?></strong>
+                                <?php echo esc_html($employer->contact_text); ?>
+                            </p>
+                            <p class="pfai-employer-meta">
+                                <strong><?php echo esc_html__('Hiring needs:', 'pathway-forward-ai'); ?></strong>
+                                <?php echo esc_html($employer->hiring_needs ?: __('No hiring needs noted yet.', 'pathway-forward-ai')); ?>
+                            </p>
+                            <p class="pfai-employer-meta">
+                                <strong><?php echo esc_html__('Next follow-up:', 'pathway-forward-ai'); ?></strong>
+                                <?php echo esc_html($employer->follow_up_display); ?>
+                            </p>
+                            <p class="pfai-employer-meta">
+                                <strong><?php echo esc_html__('Notes:', 'pathway-forward-ai'); ?></strong>
+                                <?php echo esc_html($employer->interaction_notes ?: __('No interaction notes documented yet.', 'pathway-forward-ai')); ?>
+                            </p>
                             <div class="pfai-card-actions">
                                 <a class="button button-small" href="<?php echo esc_url(add_query_arg(array('page' => 'pfai-employers', 'edit' => (int) $employer->id), admin_url('admin.php'))); ?>"><?php echo esc_html__('Edit', 'pathway-forward-ai'); ?></a>
                                 <a class="button button-link-delete button-small" href="<?php echo esc_url(wp_nonce_url(add_query_arg(array('page' => 'pfai-employers', 'delete' => (int) $employer->id), admin_url('admin.php')), 'pfai_delete_employer_' . (int) $employer->id)); ?>" onclick="return confirm('<?php echo esc_attr__('Delete this employer record?', 'pathway-forward-ai'); ?>');"><?php echo esc_html__('Delete', 'pathway-forward-ai'); ?></a>

@@ -97,7 +97,7 @@ class PFAI_Employers {
 
         $hiring_needs = sanitize_textarea_field(wp_unslash($_POST['hiring_needs'] ?? ''));
         $interaction_notes = sanitize_textarea_field(wp_unslash($_POST['interaction_notes'] ?? ''));
-        $follow_up_date = '';
+        $follow_up_date = null;
         if (!empty($_POST['follow_up_date'])) {
             $follow_up_date = sanitize_text_field(wp_unslash($_POST['follow_up_date']));
             $date = date_create_immutable_from_format('Y-m-d', $follow_up_date);
@@ -123,6 +123,10 @@ class PFAI_Employers {
             'follow_up_date' => $follow_up_date,
             'interaction_notes' => $interaction_notes,
         );
+
+        if ('' === $follow_up_date || '0000-00-00' === $follow_up_date) {
+            $payload['follow_up_date'] = null;
+        }
 
         global $wpdb;
         $table_name = self::get_table_name();
@@ -233,6 +237,36 @@ class PFAI_Employers {
             'inactive' => __('Inactive', 'pathway-forward-ai'),
         );
 
+        foreach ($employers as $employer) {
+            $employer->contact_text = self::build_contact_text($employer);
+            $employer->follow_up_display = self::format_follow_up_date($employer->follow_up_date);
+        }
+
         include PFAI_PLUGIN_DIR . 'admin/partials/employer-crm.php';
+    }
+
+    public static function build_contact_text($employer) {
+        $parts = array();
+
+        if (!empty($employer->contact_name)) {
+            $parts[] = $employer->contact_name;
+        }
+        if (!empty($employer->email)) {
+            $parts[] = $employer->email;
+        }
+        if (!empty($employer->phone)) {
+            $parts[] = $employer->phone;
+        }
+
+        return implode(' • ', $parts);
+    }
+
+    public static function format_follow_up_date($value) {
+        if (empty($value) || '0000-00-00' === $value) {
+            return __('No follow-up date set', 'pathway-forward-ai');
+        }
+
+        return (string) $value;
+    }
     }
 }
