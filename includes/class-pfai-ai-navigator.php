@@ -123,10 +123,12 @@ class PFAI_AI_Navigator {
         $old_ids = $wpdb->get_col($wpdb->prepare("SELECT id FROM $conversations WHERE updated_at < %s", $cutoff));
         if (!empty($old_ids)) {
             $placeholders = implode(',', array_fill(0, count($old_ids), '%d'));
-            $prepared = $wpdb->prepare("DELETE FROM $messages WHERE conversation_id IN ($placeholders)", $old_ids);
+
+            // Preserve support-case history by detaching old conversation links instead of deleting escalations.
+            $prepared = $wpdb->prepare("UPDATE $escalations SET conversation_id = NULL, updated_at = %s WHERE conversation_id IN ($placeholders)", array_merge(array(current_time('mysql')), $old_ids));
             $wpdb->query($prepared);
 
-            $prepared = $wpdb->prepare("DELETE FROM $escalations WHERE conversation_id IN ($placeholders)", $old_ids);
+            $prepared = $wpdb->prepare("DELETE FROM $messages WHERE conversation_id IN ($placeholders)", $old_ids);
             $wpdb->query($prepared);
 
             $prepared = $wpdb->prepare("DELETE FROM $conversations WHERE id IN ($placeholders)", $old_ids);
@@ -234,6 +236,7 @@ class PFAI_AI_Navigator {
                 break;
             }
         }
+        $fallback_notice = self::handle_fallback_request_submission($contexts, $fallback_shortcode);
 
         ob_start();
         ?>
@@ -256,17 +259,22 @@ class PFAI_AI_Navigator {
             <section class="pfai-request-fallback<?php echo $fallback_enabled ? '' : ' is-hidden'; ?>" aria-label="Fallback request form">
                 <h3>Request Services (Fallback Form)</h3>
                 <p>The AI assistant is currently unavailable. Submit this form and a coordinator will follow up.</p>
+                <?php if (!empty($fallback_notice['message'])) : ?>
+                    <p class="pfai-fallback-notice <?php echo esc_attr(!empty($fallback_notice['success']) ? 'is-success' : 'is-error'); ?>"><?php echo esc_html($fallback_notice['message']); ?></p>
+                <?php endif; ?>
                 <?php if ($fallback_shortcode) : ?>
                     <?php echo do_shortcode('[' . $fallback_shortcode . ']'); ?>
                 <?php else : ?>
                 <form method="post" action="">
+                    <?php wp_nonce_field('pfai_reemployment_fallback_submit', 'pfai_reemployment_fallback_nonce'); ?>
+                    <input type="hidden" name="pfai_reemployment_fallback_action" value="submit">
                     <p>
                         <label for="pfai-request-name">Name</label>
-                        <input id="pfai-request-name" type="text" name="pfai_request_name" autocomplete="name">
+                        <input id="pfai-request-name" type="text" name="pfai_request_name" autocomplete="name" required>
                     </p>
                     <p>
                         <label for="pfai-request-email">Email</label>
-                        <input id="pfai-request-email" type="email" name="pfai_request_email" autocomplete="email">
+                        <input id="pfai-request-email" type="email" name="pfai_request_email" autocomplete="email" required>
                     </p>
                     <p>
                         <label for="pfai-request-service">Service Needed</label>
@@ -278,9 +286,9 @@ class PFAI_AI_Navigator {
                     </p>
                     <p>
                         <label for="pfai-request-details">Details</label>
-                        <textarea id="pfai-request-details" name="pfai_request_details" rows="4"></textarea>
+                        <textarea id="pfai-request-details" name="pfai_request_details" rows="4" required></textarea>
                     </p>
-                    <p><button type="button" class="button" disabled>Form submission is available when coordinator routing is enabled.</button></p>
+                    <p><button type="submit" class="button button-primary">Submit Request</button></p>
                 </form>
                 <?php endif; ?>
                 <p>Immediate support: <a href="mailto:<?php echo esc_attr($support_email); ?>"><?php echo esc_html($support_email); ?></a></p>
@@ -519,8 +527,52 @@ class PFAI_AI_Navigator {
             return true;
         }
 
-        $coordinator_allowed = current_user_can('edit_others_posts');
-        return (bool) apply_filters('pfai_can_view_participant_ai_case', $coordinator_allowed, $current_user_id, $participant_id);
+        if ($participant_id <= 0) {
+            return false;
+        }
+
+        $assigned = self::is_participant_assigned_to_user($participant_id, $current_user_id);
+        return (bool) apply_filters('pfai_can_view_participant_ai_case', $assigned, $current_user_id, $participant_id);
+    }
+
+    private static function is_participant_assigned_to_user($participant_id, $user_id) {
+        if ($participant_id <= 0 || $user_id <= 0) {
+            return false;
+        }
+
+        $meta_user_ids = array('pfs_case_manager_user_id', 'pfai_case_manager_user_id');
+        foreach ($meta_user_ids as $meta_key) {
+            $assigned_user_id = absint(get_post_meta($participant_id, $meta_key, true));
+            if ($assigned_user_id > 0) {
+                return $assigned_user_id === $user_id;
+            }
+        }
+
+        $manager_fields = array('pfs_case_manager', 'pfai_case_manager');
+        $current_user = get_userdata($user_id);
+        if (!$current_user) {
+            return false;
+        }
+
+        $tokens = array_filter(array(
+            sanitize_text_field((string) $current_user->display_name),
+            sanitize_text_field((string) $current_user->user_login),
+            sanitize_email((string) $current_user->user_email),
+        ));
+
+        foreach ($manager_fields as $meta_key) {
+            $assigned = sanitize_text_field((string) get_post_meta($participant_id, $meta_key, true));
+            if ($assigned === '') {
+                continue;
+            }
+            foreach ($tokens as $token) {
+                if ($token !== '' && strcasecmp($assigned, $token) === 0) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 
     private static function create_conversation($participant_id, $user_id, $service_context) {
@@ -576,11 +628,19 @@ class PFAI_AI_Navigator {
     private static function get_messages($conversation_id, $limit = 20) {
         global $wpdb;
         $messages = self::table_messages();
+        $limit = max(1, absint($limit));
         $rows = $wpdb->get_results(
             $wpdb->prepare(
-                "SELECT role, content FROM $messages WHERE conversation_id = %d ORDER BY id ASC LIMIT %d",
+                "SELECT role, content FROM (
+                    SELECT role, content, id
+                    FROM $messages
+                    WHERE conversation_id = %d
+                    ORDER BY id DESC
+                    LIMIT %d
+                ) AS selected_messages
+                ORDER BY id ASC",
                 absint($conversation_id),
-                absint($limit)
+                $limit
             ),
             ARRAY_A
         );
@@ -732,7 +792,7 @@ class PFAI_AI_Navigator {
             return array();
         }
 
-        if (!current_user_can('edit_others_posts') && !current_user_can('manage_options')) {
+        if (!current_user_can('manage_options') && !current_user_can('edit_others_posts')) {
             return array();
         }
 
@@ -771,5 +831,85 @@ class PFAI_AI_Navigator {
     private static function table_escalations() {
         global $wpdb;
         return $wpdb->prefix . 'pfai_ai_escalations';
+    }
+
+    private static function handle_fallback_request_submission($contexts, $fallback_shortcode) {
+        $notice = array(
+            'success' => false,
+            'message' => '',
+        );
+
+        if (!empty($fallback_shortcode)) {
+            return $notice;
+        }
+
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return $notice;
+        }
+
+        $action = isset($_POST['pfai_reemployment_fallback_action']) ? sanitize_key(wp_unslash($_POST['pfai_reemployment_fallback_action'])) : '';
+        if ($action !== 'submit') {
+            return $notice;
+        }
+
+        if (!isset($_POST['pfai_reemployment_fallback_nonce']) || !wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['pfai_reemployment_fallback_nonce'])), 'pfai_reemployment_fallback_submit')) {
+            $notice['message'] = 'Security validation failed. Please refresh and try again.';
+            return $notice;
+        }
+
+        $name = sanitize_text_field(wp_unslash($_POST['pfai_request_name'] ?? ''));
+        $email = sanitize_email(wp_unslash($_POST['pfai_request_email'] ?? ''));
+        $service = sanitize_key(wp_unslash($_POST['pfai_request_service'] ?? 'resume-interview'));
+        $details = sanitize_textarea_field(wp_unslash($_POST['pfai_request_details'] ?? ''));
+
+        if ($name === '' || $email === '' || !is_email($email) || $details === '') {
+            $notice['message'] = 'Please provide your name, a valid email, and request details.';
+            return $notice;
+        }
+
+        $allowed_services = array_keys($contexts);
+        if (!in_array($service, $allowed_services, true)) {
+            $service = 'resume-interview';
+        }
+
+        $participant_id = 0;
+        $user_id = 0;
+        if (is_user_logged_in()) {
+            $user_id = get_current_user_id();
+            $participant_id = self::resolve_participant_id_for_current_user();
+        }
+
+        $summary_lines = array(
+            'Fallback request submitted from Reemployment Services form.',
+            'Name: ' . $name,
+            'Email: ' . $email,
+            'Service: ' . $service,
+            'Details: ' . $details,
+        );
+        $summary = implode("\n", $summary_lines);
+
+        $escalation_id = self::create_escalation(0, $participant_id, $user_id, $service, 'Fallback request form submission', 'normal', $summary);
+        if ($escalation_id > 0) {
+            if ($participant_id > 0) {
+                self::append_case_note($participant_id, $service, 'Fallback request form submission', 'normal', $escalation_id);
+            }
+            $notice['success'] = true;
+            $notice['message'] = 'Your request was submitted successfully and routed to support.';
+            return $notice;
+        }
+
+        $support_email = sanitize_email(get_option('pfai_support_email', get_option('admin_email')));
+        if ($support_email && is_email($support_email)) {
+            $subject = 'Pathway Forward AI fallback request: ' . $service;
+            $mail_sent = wp_mail($support_email, $subject, $summary);
+            if ($mail_sent) {
+                $notice['success'] = true;
+                $notice['message'] = 'Your request was sent successfully to support.';
+                return $notice;
+            }
+        }
+
+        $notice['message'] = 'We could not submit your request right now. Please contact support directly.';
+        return $notice;
     }
 }

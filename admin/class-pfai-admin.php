@@ -25,6 +25,7 @@ class PFAI_Admin {
 
     public function register_menu() {
         $capability = 'manage_options';
+        $follow_ups_capability = 'edit_others_posts';
 
         add_menu_page(
             'Pathway Forward Mission Control',
@@ -37,18 +38,18 @@ class PFAI_Admin {
         );
 
         $items = array(
-            array('Mission Control','Mission Control','pathway-forward-ai'),
-            array('Participants','Participants','pfai-participants'),
-            array('Participant Workspace','Participant Workspace','pfai-participant-workspace'),
-            array('All Participants','All Participants','edit.php?post_type=pfai_participant'),
-            array('Add Participant','Add Participant','post-new.php?post_type=pfai_participant'),
-            array('Case Management','Case Management','pfai-case-management'),
-            array('Follow-Up Queue','Follow-Up Queue','pfai-follow-ups'),
-            array('AI Career Coach','AI Career Coach','pfai-ai-coach'),
-            array('Employers','Employers','pfai-employers'),
-            array('Reports','Reports','pfai-reports'),
-            array('AI Center','AI Center','pfai-ai-center'),
-            array('Settings','Settings','pathway-forward-ai-settings'),
+            array('Mission Control','Mission Control','pathway-forward-ai', $capability),
+            array('Participants','Participants','pfai-participants', $capability),
+            array('Participant Workspace','Participant Workspace','pfai-participant-workspace', $capability),
+            array('All Participants','All Participants','edit.php?post_type=pfai_participant', $capability),
+            array('Add Participant','Add Participant','post-new.php?post_type=pfai_participant', $capability),
+            array('Case Management','Case Management','pfai-case-management', $capability),
+            array('Follow-Up Queue','Follow-Up Queue','pfai-follow-ups', $follow_ups_capability),
+            array('AI Career Coach','AI Career Coach','pfai-ai-coach', $capability),
+            array('Employers','Employers','pfai-employers', $capability),
+            array('Reports','Reports','pfai-reports', $capability),
+            array('AI Center','AI Center','pfai-ai-center', $capability),
+            array('Settings','Settings','pathway-forward-ai-settings', $capability),
         );
 
         foreach ($items as $item) {
@@ -56,7 +57,7 @@ class PFAI_Admin {
                 'pathway-forward-ai',
                 $item[0],
                 $item[1],
-                $capability,
+                $item[3],
                 $item[2],
                 array($this, 'render_current_page')
             );
@@ -192,9 +193,15 @@ class PFAI_Admin {
     }
 
     public function render_current_page() {
-        if (!current_user_can('manage_options')) return;
-
         $slug = isset($_GET['page']) ? sanitize_key($_GET['page']) : 'pathway-forward-ai';
+
+        if ('pfai-follow-ups' === $slug) {
+            if (!current_user_can('manage_options') && !current_user_can('edit_others_posts')) {
+                return;
+            }
+        } elseif (!current_user_can('manage_options')) {
+            return;
+        }
 
         if ('pfai-employers' === $slug) {
             PFAI_Employers::render_admin_page();
