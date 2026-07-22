@@ -127,6 +127,12 @@ class PFAI_Admin {
         register_setting('pfai_settings_group','pfai_openai_model',array(
             'type'=>'string','sanitize_callback'=>'sanitize_text_field','default'=>'gpt-5-mini'
         ));
+        register_setting('pfai_settings_group','pfai_ai_retention_days',array(
+            'type'=>'integer','sanitize_callback'=>array($this,'sanitize_retention_days'),'default'=>90
+        ));
+        register_setting('pfai_settings_group','pfai_ai_rate_limit_per_hour',array(
+            'type'=>'integer','sanitize_callback'=>array($this,'sanitize_rate_limit'),'default'=>20
+        ));
 
         add_settings_section('pfai_general','Organization Settings',function(){
             echo '<p>Configure your organization identity and support contact.</p>';
@@ -152,6 +158,14 @@ class PFAI_Admin {
         add_settings_field('pfai_openai_model','AI model',function(){
             printf('<input type="text" class="regular-text" name="pfai_openai_model" value="%s"><p class="description">Recommended starting value: gpt-5-mini.</p>',esc_attr(get_option('pfai_openai_model','gpt-5-mini')));
         },'pathway-forward-ai-settings','pfai_ai');
+
+        add_settings_field('pfai_ai_retention_days','Conversation retention (days)',function(){
+            printf('<input type="number" min="1" max="3650" class="small-text" name="pfai_ai_retention_days" value="%s"><p class="description">How long AI conversation records should be retained before cleanup runs.</p>',esc_attr((string) get_option('pfai_ai_retention_days',90)));
+        },'pathway-forward-ai-settings','pfai_ai');
+
+        add_settings_field('pfai_ai_rate_limit_per_hour','Rate limit (messages per user per hour)',function(){
+            printf('<input type="number" min="5" max="500" class="small-text" name="pfai_ai_rate_limit_per_hour" value="%s"><p class="description">Basic safeguard to reduce abuse and runaway costs.</p>',esc_attr((string) get_option('pfai_ai_rate_limit_per_hour',20)));
+        },'pathway-forward-ai-settings','pfai_ai');
     }
 
 
@@ -159,6 +173,22 @@ class PFAI_Admin {
         $value = trim((string) $value);
         if ($value === '') return get_option('pfai_openai_api_key', '');
         return preg_replace('/[^A-Za-z0-9_\-\.]/', '', $value);
+    }
+
+    public function sanitize_retention_days($value) {
+        $days = absint($value);
+        if ($days < 1) {
+            $days = 90;
+        }
+        return min($days, 3650);
+    }
+
+    public function sanitize_rate_limit($value) {
+        $limit = absint($value);
+        if ($limit < 5) {
+            $limit = 20;
+        }
+        return min($limit, 500);
     }
 
     public function render_current_page() {

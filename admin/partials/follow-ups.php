@@ -84,4 +84,36 @@ include PFAI_PLUGIN_DIR . 'admin/partials/layout-start.php';
     <?php endif; ?>
 </section>
 
+<?php $escalations = class_exists('PFAI_AI_Navigator') ? PFAI_AI_Navigator::get_recent_escalations(30) : array(); ?>
+<section class="pfai-panel">
+    <div class="pfai-section-heading">
+        <div><span class="pfai-eyebrow">AI SUPPORT CASES</span><h2>Recent Escalations</h2></div>
+    </div>
+
+    <?php if (!$escalations) : ?>
+        <p class="pfai-muted">No AI escalations are currently open for your authorized participant cases.</p>
+    <?php else : ?>
+        <div class="pfai-table-scroll">
+            <table class="widefat striped pfai-followup-table">
+                <thead><tr><th>Created</th><th>Participant</th><th>Service</th><th>Reason</th><th>Urgency</th><th>Summary</th></tr></thead>
+                <tbody>
+                <?php foreach ($escalations as $item) :
+                    $participant_id = absint($item['participant_id'] ?? 0);
+                    $participant_name = $participant_id > 0 ? get_the_title($participant_id) : 'Participant';
+                ?>
+                    <tr>
+                        <td><?php echo esc_html(!empty($item['created_at']) ? wp_date(get_option('date_format') . ' ' . get_option('time_format'), strtotime($item['created_at'])) : ''); ?></td>
+                        <td><?php echo esc_html($participant_name ?: 'Participant'); ?></td>
+                        <td><?php echo esc_html($item['service_context'] ?? 'general'); ?></td>
+                        <td><?php echo esc_html($item['reason'] ?? 'Participant requested support'); ?></td>
+                        <td><?php echo esc_html(ucfirst((string) ($item['urgency'] ?? 'normal'))); ?></td>
+                        <td><?php echo esc_html(wp_trim_words((string) ($item['summary'] ?? ''), 26, '...')); ?></td>
+                    </tr>
+                <?php endforeach; ?>
+                </tbody>
+            </table>
+        </div>
+    <?php endif; ?>
+</section>
+
 <?php include PFAI_PLUGIN_DIR . 'admin/partials/layout-end.php'; ?>

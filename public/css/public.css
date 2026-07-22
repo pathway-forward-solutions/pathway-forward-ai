@@ -1,1 +1,226 @@
-/* Public-facing styles will be added in a future release. */
+:root {
+	--pfai-bg: #f4f7f9;
+	--pfai-panel: #ffffff;
+	--pfai-ink: #142433;
+	--pfai-muted: #4d6072;
+	--pfai-line: #d6e2ea;
+	--pfai-primary: #0f766e;
+	--pfai-primary-soft: #d9f3ef;
+	--pfai-error: #9f1239;
+	--pfai-warning: #92400e;
+	--pfai-success: #166534;
+}
+
+.pfai-reemployment-wrapper,
+.pfai-ai-navigator {
+	background: var(--pfai-panel);
+	border: 1px solid var(--pfai-line);
+	border-radius: 16px;
+	box-shadow: 0 12px 26px rgba(20, 36, 51, 0.08);
+}
+
+.pfai-reemployment-wrapper {
+	padding: 1rem;
+	background: linear-gradient(180deg, #f9fcff 0%, var(--pfai-bg) 100%);
+}
+
+.pfai-reemployment-header h2,
+.pfai-ai-header h2 {
+	margin: 0;
+	color: var(--pfai-ink);
+	font-size: 1.4rem;
+}
+
+.pfai-reemployment-header p,
+.pfai-ai-subtitle {
+	color: var(--pfai-muted);
+	margin: 0.5rem 0 0;
+}
+
+.pfai-service-cards {
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	gap: 0.75rem;
+	margin: 1rem 0 1.25rem;
+}
+
+.pfai-service-card {
+	border: 1px solid var(--pfai-line);
+	background: #fff;
+	border-radius: 12px;
+	text-align: left;
+	padding: 0.85rem;
+	cursor: pointer;
+	transition: border-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.pfai-service-card strong {
+	display: block;
+	color: var(--pfai-ink);
+	margin-bottom: 0.35rem;
+}
+
+.pfai-service-card span {
+	color: var(--pfai-muted);
+	font-size: 0.9rem;
+}
+
+.pfai-service-card.is-active,
+.pfai-service-card:focus-visible,
+.pfai-service-card:hover {
+	border-color: var(--pfai-primary);
+	box-shadow: 0 8px 20px rgba(15, 118, 110, 0.14);
+	transform: translateY(-1px);
+	outline: none;
+}
+
+.pfai-ai-navigator {
+	padding: 1rem;
+}
+
+.pfai-ai-header {
+	margin-bottom: 0.9rem;
+}
+
+.pfai-ai-safety {
+	margin: 0.6rem 0 0;
+	font-size: 0.86rem;
+	color: var(--pfai-warning);
+}
+
+.pfai-ai-status {
+	min-height: 1.4rem;
+	font-size: 0.92rem;
+	color: var(--pfai-muted);
+	margin-bottom: 0.6rem;
+}
+
+.pfai-ai-status.is-error {
+	color: var(--pfai-error);
+}
+
+.pfai-ai-status.is-warning {
+	color: var(--pfai-warning);
+}
+
+.pfai-ai-status.is-success {
+	color: var(--pfai-success);
+}
+
+.pfai-ai-conversation {
+	background: #fbfeff;
+	border: 1px solid var(--pfai-line);
+	border-radius: 12px;
+	padding: 0.75rem;
+	min-height: 210px;
+	max-height: 380px;
+	overflow: auto;
+}
+
+.pfai-ai-message {
+	margin: 0 0 0.65rem;
+	display: flex;
+}
+
+.pfai-ai-message p {
+	margin: 0;
+	padding: 0.62rem 0.75rem;
+	border-radius: 10px;
+	line-height: 1.45;
+}
+
+.pfai-ai-message-user {
+	justify-content: flex-end;
+}
+
+.pfai-ai-message-user p {
+	background: var(--pfai-primary);
+	color: #fff;
+}
+
+.pfai-ai-message-assistant p {
+	background: var(--pfai-primary-soft);
+	color: var(--pfai-ink);
+}
+
+.pfai-ai-prompts {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.5rem;
+	margin: 0.75rem 0;
+}
+
+.pfai-ai-prompt {
+	border: 1px solid var(--pfai-line);
+	border-radius: 999px;
+	background: #fff;
+	color: var(--pfai-ink);
+	padding: 0.4rem 0.7rem;
+	cursor: pointer;
+}
+
+.pfai-ai-prompt:hover,
+.pfai-ai-prompt:focus-visible {
+	border-color: var(--pfai-primary);
+	outline: none;
+}
+
+.pfai-ai-form {
+	margin-top: 0.75rem;
+}
+
+.pfai-ai-input {
+	width: 100%;
+	border-radius: 10px;
+	border: 1px solid var(--pfai-line);
+	padding: 0.6rem 0.7rem;
+	font: inherit;
+	box-sizing: border-box;
+}
+
+.pfai-ai-actions {
+	display: flex;
+	gap: 0.55rem;
+	margin-top: 0.6rem;
+	flex-wrap: wrap;
+}
+
+.pfai-ai-support {
+	margin-top: 0.75rem;
+	border: 1px dashed var(--pfai-line);
+	border-radius: 10px;
+	padding: 0.7rem;
+	background: #fffdf6;
+}
+
+.pfai-request-fallback {
+	margin-top: 1rem;
+	border-top: 1px solid var(--pfai-line);
+	padding-top: 1rem;
+}
+
+.pfai-request-fallback label {
+	display: block;
+	margin-bottom: 0.3rem;
+	color: var(--pfai-ink);
+}
+
+.pfai-request-fallback input,
+.pfai-request-fallback select,
+.pfai-request-fallback textarea {
+	width: 100%;
+	box-sizing: border-box;
+	border: 1px solid var(--pfai-line);
+	border-radius: 8px;
+	padding: 0.55rem 0.6rem;
+}
+
+.is-hidden {
+	display: none !important;
+}
+
+@media (max-width: 780px) {
+	.pfai-service-cards {
+		grid-template-columns: 1fr;
+	}
+}
