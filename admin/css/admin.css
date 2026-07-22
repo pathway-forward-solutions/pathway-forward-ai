@@ -1,6 +1,34 @@
 .pfai-wrap{max-width:1280px}.pfai-topbar{display:flex;justify-content:space-between;align-items:flex-start;background:#fff;border:1px solid #dcdcde;border-radius:16px;padding:28px;margin:20px 0;box-shadow:0 8px 24px rgba(0,0,0,.05)}.pfai-topbar h1{font-size:36px;line-height:1.15;margin:7px 0}.pfai-topbar p{font-size:15px;margin:0;color:#50575e}.pfai-brand{font-size:12px;font-weight:800;letter-spacing:.12em}.pfai-version{background:#f0f0f1;border-radius:999px;padding:7px 12px;font-weight:700}.pfai-grid{display:grid;gap:18px}.pfai-kpis{grid-template-columns:repeat(4,minmax(0,1fr));margin-bottom:18px}.pfai-kpi,.pfai-panel{background:#fff;border:1px solid #dcdcde;border-radius:16px;box-shadow:0 6px 20px rgba(0,0,0,.04)}.pfai-kpi{padding:22px;display:flex;flex-direction:column;gap:7px}.pfai-kpi strong{font-size:32px;line-height:1}.pfai-kpi small{font-size:14px;color:#50575e}.pfai-panel{padding:24px;margin-bottom:18px}.pfai-panel h2{margin-top:0}.pfai-two{grid-template-columns:2fr 1fr}.pfai-actions{display:flex;gap:10px;flex-wrap:wrap}.pfai-status-list{list-style:none;margin:0}.pfai-status-list li{display:flex;align-items:center;gap:9px;margin:13px 0}.pfai-status-list i{width:10px;height:10px;border-radius:50%;display:inline-block}.pfai-status-list .good{background:#00a32a}.pfai-status-list .pending{background:#dba617}.pfai-muted{color:#646970}.pfai-form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}.pfai-form-grid p{margin:0}.pfai-form-grid label{display:block;font-weight:600;margin-bottom:6px}.pfai-form-grid input,.pfai-form-grid select,.pfai-form-grid textarea{width:100%}.pfai-form-grid .pfai-full{grid-column:1/-1}.pfai-status-badge{display:inline-block;padding:4px 8px;border-radius:999px;background:#f0f0f1}.pfai-status-active{background:#d7f5df}.pfai-status-placed{background:#dbeafe}.pfai-status-needs-follow-up{background:#fff3cd}@media(max-width:900px){.pfai-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.pfai-two{grid-template-columns:1fr}}@media(max-width:600px){.pfai-kpis,.pfai-form-grid{grid-template-columns:1fr}.pfai-topbar{flex-direction:column}}
 /* Mission Control 2.0 */
 .pfai-release-banner{display:flex;justify-content:space-between;align-items:center;gap:24px;background:linear-gradient(135deg,#10233f,#1f5d64);color:#fff;border-radius:18px;padding:28px 30px;margin-bottom:18px;box-shadow:0 12px 30px rgba(16,35,63,.18)}
+.pfai-entity-layout{display:grid;grid-template-columns:1.15fr .85fr;gap:18px;align-items:start}
+.pfai-panel-compact{padding:24px}
+.pfai-panel-heading{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:18px}
+.pfai-kicker{margin:0 0 4px;font-size:11px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:#5fa99e}
+.pfai-entity-form .pfai-form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+.pfai-entity-form .pfai-form-field{display:flex;flex-direction:column;gap:6px}
+.pfai-entity-form .pfai-form-field-full{grid-column:1 / -1}
+.pfai-entity-form label{display:block;font-weight:600;color:#1f2937;margin:0}
+.pfai-entity-form input,.pfai-entity-form select,.pfai-entity-form textarea{width:100%;max-width:100%;box-sizing:border-box;border:1px solid #d0d7de;border-radius:10px;padding:10px 12px;background:#fcfdff}
+.pfai-entity-form textarea{min-height:110px}
+.pfai-inline-hint{display:inline-flex;align-items:center;min-height:42px;padding:0 0 0 2px;color:#64748b;font-size:13px}
+.pfai-form-actions{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-top:20px}
+.pfai-filter-form{display:grid;grid-template-columns:1.35fr .95fr .95fr auto auto;gap:10px;align-items:end;margin-bottom:16px}
+.pfai-filter-form input,.pfai-filter-form select{width:100%;box-sizing:border-box}
+.pfai-employer-list{display:grid;gap:12px}
+.pfai-employer-card{border:1px solid #dce7e6;border-radius:14px;padding:16px;background:linear-gradient(145deg,#ffffff,#f5faf9);box-shadow:0 8px 20px rgba(16,35,63,.04)}
+.pfai-employer-topline{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:8px}
+.pfai-employer-topline h3{margin:0 0 4px;font-size:16px;color:#10233f}
+.pfai-employer-topline p{margin:0;color:#64748b}
+.pfai-status{display:inline-block;padding:5px 9px;border-radius:999px;background:#eef4f3;color:#174f50;font-size:11px;font-weight:700;white-space:nowrap}
+.pfai-status-prospect{background:#eef4f3;color:#174f50}
+.pfai-status-active{background:#dff6e8;color:#146c2f}
+.pfai-status-paused{background:#fef3c7;color:#92400e}
+.pfai-status-inactive{background:#f3f4f6;color:#4b5563}
+.pfai-employer-meta{margin:7px 0 0;color:#475569;line-height:1.5}
+.pfai-card-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+@media(max-width:1024px){.pfai-entity-layout{grid-template-columns:1fr}.pfai-filter-form{grid-template-columns:1fr 1fr}.pfai-filter-form .button{grid-column:span 2}}
+@media(max-width:768px){.pfai-entity-form .pfai-form-grid{grid-template-columns:1fr}.pfai-filter-form{grid-template-columns:1fr}.pfai-filter-form .button{grid-column:auto}.pfai-employer-topline{flex-direction:column;align-items:flex-start}}
 .pfai-release-banner h2{color:#fff;font-size:24px;margin:5px 0 7px}.pfai-release-banner p{margin:0;color:rgba(255,255,255,.82)}
 .pfai-eyebrow{display:block;font-size:11px;line-height:1.2;font-weight:800;letter-spacing:.12em;color:#64748b}.pfai-release-banner .pfai-eyebrow{color:#9ed9d0}
 .pfai-release-chip{white-space:nowrap;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.28);border-radius:999px;padding:9px 14px;font-weight:700}
