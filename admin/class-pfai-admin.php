@@ -25,6 +25,7 @@ class PFAI_Admin {
 
     public function register_menu() {
         $capability = 'manage_options';
+        $follow_ups_capability = 'edit_others_posts';
 
         add_menu_page(
             'Pathway Forward Mission Control',
@@ -37,18 +38,18 @@ class PFAI_Admin {
         );
 
         $items = array(
-            array('Mission Control','Mission Control','pathway-forward-ai'),
-            array('Participants','Participants','pfai-participants'),
-            array('Participant Workspace','Participant Workspace','pfai-participant-workspace'),
-            array('All Participants','All Participants','edit.php?post_type=pfai_participant'),
-            array('Add Participant','Add Participant','post-new.php?post_type=pfai_participant'),
-            array('Case Management','Case Management','pfai-case-management'),
-            array('Follow-Up Queue','Follow-Up Queue','pfai-follow-ups'),
-            array('AI Career Coach','AI Career Coach','pfai-ai-coach'),
-            array('Employers','Employers','pfai-employers'),
-            array('Reports','Reports','pfai-reports'),
-            array('AI Center','AI Center','pfai-ai-center'),
-            array('Settings','Settings','pathway-forward-ai-settings'),
+            array('Mission Control','Mission Control','pathway-forward-ai', $capability),
+            array('Participants','Participants','pfai-participants', $capability),
+            array('Participant Workspace','Participant Workspace','pfai-participant-workspace', $capability),
+            array('All Participants','All Participants','edit.php?post_type=pfai_participant', $capability),
+            array('Add Participant','Add Participant','post-new.php?post_type=pfai_participant', $capability),
+            array('Case Management','Case Management','pfai-case-management', $capability),
+            array('Follow-Up Queue','Follow-Up Queue','pfai-follow-ups', $follow_ups_capability),
+            array('AI Career Coach','AI Career Coach','pfai-ai-coach', $capability),
+            array('Employers','Employers','pfai-employers', $capability),
+            array('Reports','Reports','pfai-reports', $capability),
+            array('AI Center','AI Center','pfai-ai-center', $capability),
+            array('Settings','Settings','pathway-forward-ai-settings', $capability),
         );
 
         foreach ($items as $item) {
@@ -56,7 +57,7 @@ class PFAI_Admin {
                 'pathway-forward-ai',
                 $item[0],
                 $item[1],
-                $capability,
+                $item[3],
                 $item[2],
                 array($this, 'render_current_page')
             );
@@ -127,6 +128,12 @@ class PFAI_Admin {
         register_setting('pfai_settings_group','pfai_openai_model',array(
             'type'=>'string','sanitize_callback'=>'sanitize_text_field','default'=>'gpt-5-mini'
         ));
+        register_setting('pfai_settings_group','pfai_ai_retention_days',array(
+            'type'=>'integer','sanitize_callback'=>array($this,'sanitize_retention_days'),'default'=>90
+        ));
+        register_setting('pfai_settings_group','pfai_ai_rate_limit_per_hour',array(
+            'type'=>'integer','sanitize_callback'=>array($this,'sanitize_rate_limit'),'default'=>20
+        ));
 
         add_settings_section('pfai_general','Organization Settings',function(){
             echo '<p>Configure your organization identity and support contact.</p>';
@@ -152,6 +159,14 @@ class PFAI_Admin {
         add_settings_field('pfai_openai_model','AI model',function(){
             printf('<input type="text" class="regular-text" name="pfai_openai_model" value="%s"><p class="description">Recommended starting value: gpt-5-mini.</p>',esc_attr(get_option('pfai_openai_model','gpt-5-mini')));
         },'pathway-forward-ai-settings','pfai_ai');
+
+        add_settings_field('pfai_ai_retention_days','Conversation retention (days)',function(){
+            printf('<input type="number" min="1" max="3650" class="small-text" name="pfai_ai_retention_days" value="%s"><p class="description">How long AI conversation records should be retained before cleanup runs.</p>',esc_attr((string) get_option('pfai_ai_retention_days',90)));
+        },'pathway-forward-ai-settings','pfai_ai');
+
+        add_settings_field('pfai_ai_rate_limit_per_hour','Rate limit (messages per user per hour)',function(){
+            printf('<input type="number" min="5" max="500" class="small-text" name="pfai_ai_rate_limit_per_hour" value="%s"><p class="description">Basic safeguard to reduce abuse and runaway costs.</p>',esc_attr((string) get_option('pfai_ai_rate_limit_per_hour',20)));
+        },'pathway-forward-ai-settings','pfai_ai');
     }
 
 
@@ -161,10 +176,32 @@ class PFAI_Admin {
         return preg_replace('/[^A-Za-z0-9_\-\.]/', '', $value);
     }
 
-    public function render_current_page() {
-        if (!current_user_can('manage_options')) return;
+    public function sanitize_retention_days($value) {
+        $days = absint($value);
+        if ($days < 1) {
+            $days = 90;
+        }
+        return min($days, 3650);
+    }
 
+    public function sanitize_rate_limit($value) {
+        $limit = absint($value);
+        if ($limit < 5) {
+            $limit = 20;
+        }
+        return min($limit, 500);
+    }
+
+    public function render_current_page() {
         $slug = isset($_GET['page']) ? sanitize_key($_GET['page']) : 'pathway-forward-ai';
+
+        if ('pfai-follow-ups' === $slug) {
+            if (!current_user_can('manage_options') && !current_user_can('edit_others_posts')) {
+                return;
+            }
+        } elseif (!current_user_can('manage_options')) {
+            return;
+        }
 
         if ('pfai-employers' === $slug) {
             PFAI_Employers::render_admin_page();
