@@ -165,6 +165,12 @@ class PFAI_Admin {
         if (!current_user_can('manage_options')) return;
 
         $slug = isset($_GET['page']) ? sanitize_key($_GET['page']) : 'pathway-forward-ai';
+
+        if ('pfai-employers' === $slug) {
+            PFAI_Employers::render_admin_page();
+            return;
+        }
+
         $template = isset($this->pages[$slug]) ? $this->pages[$slug] : 'dashboard';
         $page_slug = $slug;
 

@@ -102,7 +102,7 @@ $statuses = array(
                 <p class="submit">
                     <button type="submit" class="button button-primary"><?php echo esc_html__('Save Employer', 'pathway-forward-ai'); ?></button>
                     <?php if ($edit_employer) : ?>
-                        <a class="button" href="<?php echo esc_url(admin_url('admin.php?page=pathway-forward-ai-employers')); ?>"><?php echo esc_html__('Cancel', 'pathway-forward-ai'); ?></a>
+                        <a class="button" href="<?php echo esc_url(admin_url('admin.php?page=pfai-employers')); ?>"><?php echo esc_html__('Cancel', 'pathway-forward-ai'); ?></a>
                     <?php endif; ?>
                 </p>
             </form>
@@ -111,7 +111,7 @@ $statuses = array(
         <section class="pfai-panel">
             <h2><?php echo esc_html__('Employer Directory', 'pathway-forward-ai'); ?></h2>
             <form method="get" class="pfai-filter-form">
-                <input type="hidden" name="page" value="pathway-forward-ai-employers" />
+                <input type="hidden" name="page" value="pfai-employers" />
                 <input type="text" name="s" value="<?php echo esc_attr($search); ?>" placeholder="<?php echo esc_attr__('Search employers', 'pathway-forward-ai'); ?>" />
                 <select name="status">
                     <option value=""><?php echo esc_html__('All statuses', 'pathway-forward-ai'); ?></option>
@@ -124,7 +124,7 @@ $statuses = array(
                     <option value="due" <?php selected($follow_up, 'due'); ?>><?php echo esc_html__('Due now or overdue', 'pathway-forward-ai'); ?></option>
                 </select>
                 <button type="submit" class="button button-primary"><?php echo esc_html__('Filter', 'pathway-forward-ai'); ?></button>
-                <a class="button" href="<?php echo esc_url(admin_url('admin.php?page=pathway-forward-ai-employers')); ?>"><?php echo esc_html__('Reset', 'pathway-forward-ai'); ?></a>
+                <a class="button" href="<?php echo esc_url(admin_url('admin.php?page=pfai-employers')); ?>"><?php echo esc_html__('Reset', 'pathway-forward-ai'); ?></a>
             </form>
 
             <?php if (empty($employers)) : ?>
@@ -145,8 +145,8 @@ $statuses = array(
                             <p><strong><?php echo esc_html__('Next follow-up:', 'pathway-forward-ai'); ?></strong> <?php echo esc_html(!empty($employer->follow_up_date) ? $employer->follow_up_date : __('No follow-up date set', 'pathway-forward-ai')); ?></p>
                             <p><strong><?php echo esc_html__('Notes:', 'pathway-forward-ai'); ?></strong> <?php echo esc_html($employer->interaction_notes ?: __('No interaction notes documented yet.', 'pathway-forward-ai')); ?></p>
                             <div class="pfai-card-actions">
-                                <a class="button button-small" href="<?php echo esc_url(add_query_arg(array('page' => 'pathway-forward-ai-employers', 'edit' => (int) $employer->id), admin_url('admin.php'))); ?>"><?php echo esc_html__('Edit', 'pathway-forward-ai'); ?></a>
-                                <a class="button button-link-delete button-small" href="<?php echo esc_url(wp_nonce_url(add_query_arg(array('page' => 'pathway-forward-ai-employers', 'delete' => (int) $employer->id), admin_url('admin.php')), 'pfai_delete_employer_' . (int) $employer->id)); ?>" onclick="return confirm('<?php echo esc_attr__('Delete this employer record?', 'pathway-forward-ai'); ?>');"><?php echo esc_html__('Delete', 'pathway-forward-ai'); ?></a>
+                                <a class="button button-small" href="<?php echo esc_url(add_query_arg(array('page' => 'pfai-employers', 'edit' => (int) $employer->id), admin_url('admin.php'))); ?>"><?php echo esc_html__('Edit', 'pathway-forward-ai'); ?></a>
+                                <a class="button button-link-delete button-small" href="<?php echo esc_url(wp_nonce_url(add_query_arg(array('page' => 'pfai-employers', 'delete' => (int) $employer->id), admin_url('admin.php')), 'pfai_delete_employer_' . (int) $employer->id)); ?>" onclick="return confirm('<?php echo esc_attr__('Delete this employer record?', 'pathway-forward-ai'); ?>');"><?php echo esc_html__('Delete', 'pathway-forward-ai'); ?></a>
                             </div>
                         </article>
                     <?php endforeach; ?>
