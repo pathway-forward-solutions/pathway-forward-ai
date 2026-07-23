@@ -1,6 +1,6 @@
 # Pathway Forward AI
 
-## Version 0.9.1 — AI Service Navigator Foundation
+## Version 0.9.2 — AI Service Navigator Foundation
 
 This release includes:
 

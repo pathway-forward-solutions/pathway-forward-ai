@@ -27,6 +27,8 @@ class PFAI_Plugin {
     }
 
     public function maybe_upgrade_core() {
+        PFAI_AI_Service::migrate_legacy_api_key();
+
         $stored_version = (string) get_option('pfai_version', '');
         if (version_compare($stored_version, PFAI_VERSION, '>=')) {
             return;

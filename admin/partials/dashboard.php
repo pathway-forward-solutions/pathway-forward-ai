@@ -7,6 +7,7 @@ $total_participants = (int) wp_count_posts($participant_post_type)->publish;
 $active_participants = 0;
 $needs_follow_up = 0;
 $placements = 0;
+$ai_configured = class_exists('PFAI_AI_Service') && PFAI_AI_Service::is_configured();
 
 $participant_ids = get_posts(array(
     'post_type'      => $participant_post_type,
@@ -72,7 +73,7 @@ $module_cards = array(
         'description' => 'Career coaching, summaries, recommendations, and assisted workflows.',
         'icon' => 'dashicons-superhero-alt',
         'url' => admin_url('admin.php?page=pfai-ai-center'),
-        'status' => 'Foundation ready',
+        'status' => $ai_configured ? 'Live navigator ready' : 'Provider setup required',
     ),
     array(
         'title' => 'Reports',
