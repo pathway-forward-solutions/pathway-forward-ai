@@ -6,7 +6,13 @@ class PFAI_AI_Service {
         if (defined('PFAI_OPENAI_API_KEY') && PFAI_OPENAI_API_KEY) {
             return trim((string) PFAI_OPENAI_API_KEY);
         }
-        return trim((string) get_option('pfai_openai_api_key', ''));
+
+        $encrypted = trim((string) get_option('pfai_openai_api_key_encrypted', ''));
+        if ($encrypted !== '') {
+            return self::decrypt_api_key($encrypted);
+        }
+
+        return '';
     }
 
     public static function is_configured() {
@@ -89,6 +95,11 @@ class PFAI_AI_Service {
     }
 
     private static function request_text_response(array $body) {
+        $provider = sanitize_key((string) get_option('pfai_ai_provider', 'openai'));
+        if ($provider !== 'openai') {
+            return new WP_Error('pfai_ai_provider_not_supported', 'The configured AI provider is not supported in this release.');
+        }
+
         $api_key = self::get_api_key();
         if ($api_key === '') {
             return new WP_Error('pfai_ai_not_configured', 'OpenAI is not configured. Add an API key under PFS Mission Control -> Settings.');
@@ -131,5 +142,78 @@ class PFAI_AI_Service {
             return new WP_Error('pfai_ai_empty_response', 'The AI service returned an empty response.');
         }
         return $text;
+    }
+
+    public static function store_api_key($plain_api_key) {
+        $plain_api_key = trim((string) $plain_api_key);
+        if ($plain_api_key === '') {
+            return;
+        }
+
+        $encrypted = self::encrypt_api_key($plain_api_key);
+        if ($encrypted === '') {
+            return;
+        }
+
+        update_option('pfai_openai_api_key_encrypted', $encrypted, false);
+        delete_option('pfai_openai_api_key');
+    }
+
+    public static function migrate_legacy_api_key() {
+        $encrypted = trim((string) get_option('pfai_openai_api_key_encrypted', ''));
+        if ($encrypted !== '') {
+            return;
+        }
+
+        $legacy = trim((string) get_option('pfai_openai_api_key', ''));
+        if ($legacy === '') {
+            return;
+        }
+
+        self::store_api_key($legacy);
+    }
+
+    private static function encrypt_api_key($plain_api_key) {
+        if (!function_exists('openssl_encrypt')) {
+            return '';
+        }
+
+        $key = self::encryption_key();
+        $iv = random_bytes(16);
+        $cipher_raw = openssl_encrypt($plain_api_key, 'AES-256-CBC', $key, OPENSSL_RAW_DATA, $iv);
+        if ($cipher_raw === false) {
+            return '';
+        }
+
+        return 'v1:' . base64_encode($iv . $cipher_raw);
+    }
+
+    private static function decrypt_api_key($encrypted_payload) {
+        $encrypted_payload = trim((string) $encrypted_payload);
+        if ($encrypted_payload === '' || strpos($encrypted_payload, 'v1:') !== 0) {
+            return '';
+        }
+
+        if (!function_exists('openssl_decrypt')) {
+            return '';
+        }
+
+        $raw = base64_decode(substr($encrypted_payload, 3), true);
+        if ($raw === false || strlen($raw) <= 16) {
+            return '';
+        }
+
+        $iv = substr($raw, 0, 16);
+        $cipher_raw = substr($raw, 16);
+        $plain = openssl_decrypt($cipher_raw, 'AES-256-CBC', self::encryption_key(), OPENSSL_RAW_DATA, $iv);
+        if ($plain === false) {
+            return '';
+        }
+
+        return trim((string) $plain);
+    }
+
+    private static function encryption_key() {
+        return hash('sha256', wp_salt('auth') . 'pfai-openai-key', true);
     }
 }

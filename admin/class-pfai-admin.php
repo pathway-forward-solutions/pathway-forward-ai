@@ -11,7 +11,7 @@ class PFAI_Admin {
         'pfai-case-management' => 'case-management',
         'pfai-follow-ups' => 'follow-ups',
         'pfai-reports' => 'reports',
-        'pfai-ai-center' => 'placeholder',
+        'pfai-ai-center' => 'ai-center',
         'pathway-forward-ai-settings' => 'settings',
     );
 
@@ -49,7 +49,7 @@ class PFAI_Admin {
             array('Employers','Employers','pfai-employers', $capability),
             array('Reports','Reports','pfai-reports', $capability),
             array('AI Center','AI Center','pfai-ai-center', $capability),
-            array('Settings','Settings','pathway-forward-ai-settings', $capability),
+            array('AI Settings','AI Settings','pathway-forward-ai-settings', $capability),
         );
 
         foreach ($items as $item) {
@@ -125,6 +125,9 @@ class PFAI_Admin {
         register_setting('pfai_settings_group','pfai_openai_api_key',array(
             'type'=>'string','sanitize_callback'=>array($this,'sanitize_api_key'),'default'=>''
         ));
+        register_setting('pfai_settings_group','pfai_ai_provider',array(
+            'type'=>'string','sanitize_callback'=>array($this,'sanitize_provider'),'default'=>'openai'
+        ));
         register_setting('pfai_settings_group','pfai_openai_model',array(
             'type'=>'string','sanitize_callback'=>'sanitize_text_field','default'=>'gpt-5-mini'
         ));
@@ -148,12 +151,19 @@ class PFAI_Admin {
         },'pathway-forward-ai-settings','pfai_general');
 
         add_settings_section('pfai_ai','AI Connection',function(){
-            echo '<p>Connect the platform to the OpenAI API. For stronger security, the key can instead be defined as <code>PFAI_OPENAI_API_KEY</code> in wp-config.php.</p>';
+            echo '<p>Configure the live AI provider server-side. API credentials are encrypted at rest and never exposed in HTML or JavaScript output. For strongest security, define keys in <code>wp-config.php</code>.</p>';
         },'pathway-forward-ai-settings');
+
+        add_settings_field('pfai_ai_provider','AI provider',function(){
+            $provider = get_option('pfai_ai_provider','openai');
+            echo '<select name="pfai_ai_provider">';
+            echo '<option value="openai"' . selected($provider,'openai',false) . '>OpenAI</option>';
+            echo '</select><p class="description">Additional providers can be added in a future release.</p>';
+        },'pathway-forward-ai-settings','pfai_ai');
 
         add_settings_field('pfai_openai_api_key','OpenAI API key',function(){
             $configured = PFAI_AI_Service::is_configured();
-            printf('<input type="password" class="regular-text" name="pfai_openai_api_key" value="" autocomplete="new-password" placeholder="%s"><p class="description">%s Leave blank to keep the existing saved key.</p>', $configured ? 'Key configured' : 'sk-...', $configured ? 'AI connection is currently configured.' : 'No API key is configured.');
+            printf('<input type="password" class="regular-text" name="pfai_openai_api_key" value="" autocomplete="new-password" placeholder="%s"><p class="description">%s Leave blank to keep the existing encrypted key.</p>', $configured ? 'Key configured' : 'sk-...', $configured ? 'AI connection is currently configured.' : 'No API key is configured.');
         },'pathway-forward-ai-settings','pfai_ai');
 
         add_settings_field('pfai_openai_model','AI model',function(){
@@ -172,8 +182,22 @@ class PFAI_Admin {
 
     public function sanitize_api_key($value) {
         $value = trim((string) $value);
-        if ($value === '') return get_option('pfai_openai_api_key', '');
-        return preg_replace('/[^A-Za-z0-9_\-\.]/', '', $value);
+        if ($value === '') {
+            return '';
+        }
+
+        $value = preg_replace('/[^A-Za-z0-9_\-\.]/', '', $value);
+        PFAI_AI_Service::store_api_key($value);
+        return '';
+    }
+
+    public function sanitize_provider($value) {
+        $provider = sanitize_key((string) $value);
+        $allowed = array('openai');
+        if (!in_array($provider, $allowed, true)) {
+            $provider = 'openai';
+        }
+        return $provider;
     }
 
     public function sanitize_retention_days($value) {

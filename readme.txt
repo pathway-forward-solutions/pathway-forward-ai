@@ -1,12 +1,12 @@
 === Pathway Forward AI ===
 Requires at least: 6.0
 Requires PHP: 7.4
-Stable tag: 0.9.1
+Stable tag: 0.9.2
 License: GPLv2 or later
 
 == Changelog ==
 
-= 0.9.1 =
+= 0.9.2 =
 * Adds the production-safe AI Service Navigator foundation.
 * Adds reusable AI assistant and Reemployment Services navigator shortcodes.
 * Adds secure AI conversation and escalation database tables with retention controls.

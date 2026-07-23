@@ -24,6 +24,7 @@ class PFAI_Activator {
         add_option('pfai_ai_navigator_db_version', PFAI_DB_VERSION);
         add_option('pfai_ai_retention_days', 90);
         add_option('pfai_ai_rate_limit_per_hour', 20);
+        add_option('pfai_ai_provider', 'openai');
 
         PFAI_Employers::install();
         PFAI_Participants::register_post_type();

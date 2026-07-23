@@ -1,7 +1,7 @@
 <?php
 if (!defined('ABSPATH')) exit;
-$page_title = 'Settings';
-$page_subtitle = 'Organization settings and AI service connection.';
+$page_title = 'AI Settings';
+$page_subtitle = 'Secure server-side AI provider configuration and organization settings.';
 include PFAI_PLUGIN_DIR . 'admin/partials/layout-start.php';
 ?>
 <section class="pfai-panel">
