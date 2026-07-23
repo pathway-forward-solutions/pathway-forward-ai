@@ -213,7 +213,7 @@ class PFAI_AI_Navigator {
             ),
             'resume-interview' => array(
                 'label' => 'Resume and interview preparation',
-                'status' => 'Pilot fully enabled in v0.9.0',
+                'status' => 'Pilot fully enabled in v0.9.1',
             ),
             'job-search-assistance' => array(
                 'label' => 'Job search assistance',
@@ -674,7 +674,7 @@ class PFAI_AI_Navigator {
     private static function normalize_pilot_response($service_context, $response, array $history) {
         $trimmed = trim($response);
         if ($service_context !== 'resume-interview') {
-            return $trimmed . "\n\nThis service area is in foundational mode for v0.9.0. I can still provide guidance and connect you to support.";
+            return $trimmed . "\n\nThis service area is in foundational mode for v0.9.1. I can still provide guidance and connect you to support.";
         }
 
         $latest_user = '';
