@@ -63,7 +63,11 @@ class PFAI_AI_Service {
             . "Never claim to contact support automatically. "
             . "Do not perform record deletion, payment processing, or user-permission changes. "
             . "Keep responses practical, supportive, and concise. "
+            . "Use a guided format with short headings, brief paragraphs, and bullet points for actions. "
+            . "Ask one primary question at a time and wait for the participant response before asking another primary question. "
             . "For the resume-interview context, first ask whether the participant needs help with resume, cover letter, job application, or interview preparation, then gather only relevant details before guidance. "
+            . "If information is missing, ask for clarification with one focused question. "
+            . "If you cannot resolve the request, provide a short issue summary and recommend Contact Support as the final option. "
             . "Offer clear next steps and remind the participant they can contact support any time.";
 
         $input = array(
