@@ -142,13 +142,15 @@ class PFAI_AI_Navigator {
         $atts = shortcode_atts(array(
             'service_context' => 'general',
             'title' => 'AI Service Navigator',
-            'welcome' => 'Welcome to Pathway Forward AI. Tell me how I can support your next step.',
+            'welcome' => 'Welcome to Pathway Forward AI. Khofi can guide you one step at a time.',
             'suggested_prompts' => 'I need resume help|Help me prepare for an interview|How should I organize my job search?',
+            'guided_steps' => 5,
         ), $atts, 'pfai_ai_assistant');
 
         $service_context = sanitize_key($atts['service_context']);
         $title = sanitize_text_field($atts['title']);
         $welcome = sanitize_text_field($atts['welcome']);
+        $guided_steps = max(3, min(12, absint($atts['guided_steps'])));
         $prompts = array_filter(array_map('sanitize_text_field', explode('|', (string) $atts['suggested_prompts'])));
 
         self::enqueue_assets();
@@ -162,6 +164,8 @@ class PFAI_AI_Navigator {
             'supportUrl' => esc_url_raw(wp_lostpassword_url()),
             'retentionDays' => max(1, absint(get_option('pfai_ai_retention_days', 90))),
             'serviceContext' => $service_context,
+            'guidedSteps' => $guided_steps,
+            'khofiImage' => PFAI_PLUGIN_URL . 'assets/images/khofi-guide.png',
         );
 
         wp_localize_script('pfai-public', 'PFAINavigator', $payload);
@@ -170,16 +174,18 @@ class PFAI_AI_Navigator {
 
         ob_start();
         ?>
-        <section class="pfai-ai-navigator" data-service-context="<?php echo esc_attr($service_context); ?>" aria-label="<?php echo esc_attr($title); ?>">
+        <section class="pfai-ai-navigator" data-service-context="<?php echo esc_attr($service_context); ?>" data-guided-steps="<?php echo esc_attr($guided_steps); ?>" aria-label="<?php echo esc_attr($title); ?>">
             <header class="pfai-ai-header">
                 <h2><?php echo esc_html($title); ?></h2>
                 <p class="pfai-ai-subtitle"><?php echo esc_html($welcome); ?></p>
                 <p class="pfai-ai-safety" role="note">This assistant provides workforce guidance only and cannot make legal, medical, financial, eligibility, hiring, or emergency decisions.</p>
             </header>
+            <div class="pfai-ai-progress" role="status" aria-live="polite" aria-atomic="true">Step 1 of <?php echo esc_html((string) $guided_steps); ?></div>
             <div class="pfai-ai-status" aria-live="polite"></div>
+            <div class="pfai-ai-live screen-reader-text" aria-live="polite" aria-atomic="true"></div>
             <div class="pfai-ai-conversation" role="log" aria-live="polite" aria-relevant="additions text" tabindex="0">
                 <article class="pfai-ai-message pfai-ai-message-assistant">
-                    <p>Hello. I can help with service navigation and next-step planning. You can request human support at any time.</p>
+                    <p>Hello. I am Khofi, your AI helper. I can guide service navigation and next-step planning one question at a time. You can request human support at any time.</p>
                 </article>
             </div>
             <?php if (!empty($prompts)) : ?>
@@ -189,6 +195,11 @@ class PFAI_AI_Navigator {
                     <?php endforeach; ?>
                 </div>
             <?php endif; ?>
+            <div class="pfai-ai-controls" role="group" aria-label="Guided chat controls">
+                <button type="button" class="pfai-ai-back button">Back</button>
+                <button type="button" class="pfai-ai-continue button">Continue</button>
+                <button type="button" class="pfai-ai-start-over button">Start Over</button>
+            </div>
             <form class="pfai-ai-form" novalidate>
                 <label for="<?php echo esc_attr($input_id); ?>" class="screen-reader-text">Ask the AI Service Navigator</label>
                 <textarea id="<?php echo esc_attr($input_id); ?>" class="pfai-ai-input" rows="3" maxlength="2500" placeholder="Type your question" required></textarea>
@@ -213,7 +224,7 @@ class PFAI_AI_Navigator {
             ),
             'resume-interview' => array(
                 'label' => 'Resume and interview preparation',
-                'status' => 'Pilot fully enabled in v0.9.2',
+                'status' => 'Khofi guided chat is fully enabled in v0.9.3',
             ),
             'job-search-assistance' => array(
                 'label' => 'Job search assistance',
@@ -674,7 +685,7 @@ class PFAI_AI_Navigator {
     private static function normalize_pilot_response($service_context, $response, array $history) {
         $trimmed = trim($response);
         if ($service_context !== 'resume-interview') {
-            return $trimmed . "\n\nThis service area is in foundational mode for v0.9.2. I can still provide guidance and connect you to support.";
+            return $trimmed . "\n\nThis service area is in foundational mode for v0.9.3. I can still provide guidance and connect you to support.";
         }
 
         $latest_user = '';

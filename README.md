@@ -1,14 +1,12 @@
 # Pathway Forward AI
 
-## Version 0.9.2 — AI Service Navigator Foundation
+## Version 0.9.3 — Khofi Guided Chat Experience
 
 This release includes:
 
 - Preserves Mission Control, Participants, Case Management, Career Workspace, and Employer CRM workflows.
-- Adds secure AI Service Navigator architecture built on `PFAI_AI_Service`.
-- Adds reusable assistant shortcode: `[pfai_ai_assistant]`.
-- Adds Reemployment Services navigator shortcode: `[pfai_reemployment_services]`.
-- Adds secure conversation/escalation tables with idempotent upgrade logic.
-- Adds participant privacy checks, capability checks, nonce validation, sanitization, and rate limiting.
-- Adds coordinator-facing escalation visibility in Follow-Up Queue.
-- Adds admin settings for retention and rate limits.
+- Redesigns AI Service Navigator into a guided one-question-at-a-time chat with progress steps.
+- Adds Khofi visual helper states and reusable assistant presentation framework.
+- Adds suggested replies, guided controls (Continue, Back, Start Over), and expandable details.
+- Preserves secure AI conversation/escalation tables, privacy checks, and support handoff flow.
+- Keeps provider credentials server-side with existing secure AI service architecture.

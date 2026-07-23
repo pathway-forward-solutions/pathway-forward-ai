@@ -23,7 +23,7 @@ include PFAI_PLUGIN_DIR . 'admin/partials/layout-start.php';
         </div>
     <?php endif; ?>
 
-    <p class="pfai-muted">Resume and Interview Preparation is the first live pathway in v0.9.2. Other service pathways remain available with foundational guidance.</p>
+    <p class="pfai-muted">Resume and Interview Preparation now uses Khofi guided chat in v0.9.3. Other service pathways remain available with foundational guidance.</p>
 
     <?php echo do_shortcode('[pfai_reemployment_services]'); ?>
 </section>

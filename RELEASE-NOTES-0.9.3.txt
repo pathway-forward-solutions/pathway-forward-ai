@@ -1,0 +1,10 @@
+Pathway Forward AI 0.9.3 - Khofi Guided Chat Experience
+
+- Redesigns AI Service Navigator into a guided, one-question-at-a-time experience.
+- Adds Khofi as the platform AI helper with reusable states:
+  welcoming, listening, thinking/loading, guiding, celebrating,
+  concerned/needs clarification, human-support handoff, error/retry.
+- Adds accessible guided chat controls: Continue, Back, Start Over, Contact Support.
+- Adds step progress indicator, structured response rendering, action cards, and optional Show more details.
+- Preserves conversation persistence and support escalation with coordinator case creation.
+- Keeps AI credentials server-side and preserves existing Mission Control and service pathway functionality.
